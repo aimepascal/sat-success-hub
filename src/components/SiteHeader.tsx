@@ -3,11 +3,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Menu, X } from "lucide-react";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function SiteHeader() {
   const [userId, setUserId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { data: isAdmin } = useIsAdmin(userId);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setUserId(data.session?.user.id ?? null));
@@ -27,6 +29,7 @@ export function SiteHeader() {
         { to: "/forum", label: "Forum" },
         { to: "/scholarships", label: "Scholarships" },
         { to: "/impact", label: "Impact" },
+        ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
       ]
     : [
         { to: "/impact", label: "Impact" },
