@@ -14,7 +14,237 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      forum_posts: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          image_url: string | null
+          title: string
+          topic: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title: string
+          topic?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          title?: string
+          topic?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      forum_replies: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_replies_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          school: string | null
+          score_improvement: number | null
+          target_score: number | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name: string
+          id: string
+          school?: string | null
+          score_improvement?: number | null
+          target_score?: number | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          school?: string | null
+          score_improvement?: number | null
+          target_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      resource_comments: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_comments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resource_likes: {
+        Row: {
+          created_at: string
+          resource_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          resource_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          resource_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_likes_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      resources: {
+        Row: {
+          author_id: string | null
+          category: string
+          content: string
+          created_at: string
+          download_count: number
+          file_url: string | null
+          id: string
+          section: string
+          summary: string
+          title: string
+        }
+        Insert: {
+          author_id?: string | null
+          category: string
+          content: string
+          created_at?: string
+          download_count?: number
+          file_url?: string | null
+          id?: string
+          section?: string
+          summary: string
+          title: string
+        }
+        Update: {
+          author_id?: string | null
+          category?: string
+          content?: string
+          created_at?: string
+          download_count?: number
+          file_url?: string | null
+          id?: string
+          section?: string
+          summary?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      scholarships: {
+        Row: {
+          amount: string | null
+          apply_url: string
+          country: string
+          created_at: string
+          deadline: string
+          description: string
+          id: string
+          institution: string
+          name: string
+          scholarship_type: string
+        }
+        Insert: {
+          amount?: string | null
+          apply_url: string
+          country: string
+          created_at?: string
+          deadline: string
+          description: string
+          id?: string
+          institution: string
+          name: string
+          scholarship_type: string
+        }
+        Update: {
+          amount?: string | null
+          apply_url?: string
+          country?: string
+          created_at?: string
+          deadline?: string
+          description?: string
+          id?: string
+          institution?: string
+          name?: string
+          scholarship_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
