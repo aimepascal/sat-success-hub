@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "resources" | "scholarships";
+type Tab = "resources" | "scholarships" | "users";
 
 function AdminPage() {
   const { user } = Route.useRouteContext();
@@ -46,19 +46,21 @@ function AdminPage() {
       </div>
 
       <div className="mt-8 flex gap-1 rounded-lg border border-border bg-surface p-1 w-fit">
-        {(["resources", "scholarships"] as Tab[]).map((t) => (
+        {(["resources", "scholarships", "users"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            {t === "resources" ? "Cheat Codes" : "Scholarships"}
+            {t === "resources" ? "Cheat Codes" : t === "scholarships" ? "Scholarships" : "Users & Roles"}
           </button>
         ))}
       </div>
 
       <div className="mt-6">
-        {tab === "resources" ? <ResourcesAdmin authorId={user.id} /> : <ScholarshipsAdmin />}
+        {tab === "resources" && <ResourcesAdmin authorId={user.id} />}
+        {tab === "scholarships" && <ScholarshipsAdmin />}
+        {tab === "users" && <UsersAudit />}
       </div>
     </div>
   );
