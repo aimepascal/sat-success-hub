@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "resources" | "scholarships";
+type Tab = "resources" | "scholarships" | "users";
 
 function AdminPage() {
   const { user } = Route.useRouteContext();
@@ -46,19 +46,21 @@ function AdminPage() {
       </div>
 
       <div className="mt-8 flex gap-1 rounded-lg border border-border bg-surface p-1 w-fit">
-        {(["resources", "scholarships"] as Tab[]).map((t) => (
+        {(["resources", "scholarships", "users"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            {t === "resources" ? "Cheat Codes" : "Scholarships"}
+            {t === "resources" ? "Cheat Codes" : t === "scholarships" ? "Scholarships" : "Users & Roles"}
           </button>
         ))}
       </div>
 
       <div className="mt-6">
-        {tab === "resources" ? <ResourcesAdmin authorId={user.id} /> : <ScholarshipsAdmin />}
+        {tab === "resources" && <ResourcesAdmin authorId={user.id} />}
+        {tab === "scholarships" && <ScholarshipsAdmin />}
+        {tab === "users" && <UsersAudit />}
       </div>
     </div>
   );
@@ -384,6 +386,110 @@ function ScholarshipsAdmin() {
           </div>
         </Modal>
       )}
+    </div>
+  );
+}
+
+/* -------------------- USERS AUDIT -------------------- */
+
+function UsersAudit() {
+  const { data: profiles = [] } = useQuery({
+    queryKey: ["admin-profiles"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, display_name, avatar_url, created_at")
+        .order("created_at", { ascending: false });
+      return data ?? [];
+    },
+  });
+
+  const { data: roles = [] } = useQuery({
+    queryKey: ["admin-user-roles"],
+    queryFn: async () => {
+      const { data } = await supabase.from("user_roles").select("user_id, role");
+      return data ?? [];
+    },
+  });
+
+  const rolesByUser = new Map<string, string[]>();
+  for (const r of roles) {
+    const list = rolesByUser.get(r.user_id) ?? [];
+    list.push(r.role);
+    rolesByUser.set(r.user_id, list);
+  }
+
+  const admins = profiles.filter((p) => rolesByUser.get(p.id)?.includes("admin")).length;
+
+  return (
+    <div>
+      <div className="mb-4 flex items-center gap-6 text-sm text-muted-foreground">
+        <span><strong className="text-foreground">{profiles.length}</strong> users</span>
+        <span><strong className="text-foreground">{admins}</strong> admin{admins === 1 ? "" : "s"}</span>
+      </div>
+
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="bg-surface text-left text-xs uppercase tracking-wider text-muted-foreground">
+            <tr>
+              <th className="px-4 py-3">User</th>
+              <th className="px-4 py-3">Roles</th>
+              <th className="px-4 py-3">Joined</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {profiles.map((p) => {
+              const userRoles = rolesByUser.get(p.id) ?? [];
+              return (
+                <tr key={p.id}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-3">
+                      {p.avatar_url ? (
+                        <img src={p.avatar_url} alt="" className="h-8 w-8 rounded-full object-cover" />
+                      ) : (
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-soft text-xs font-medium text-primary">
+                          {p.display_name?.[0]?.toUpperCase() ?? "?"}
+                        </div>
+                      )}
+                      <div>
+                        <div className="font-medium">{p.display_name ?? "Unnamed"}</div>
+                        <div className="text-xs text-muted-foreground">{p.id.slice(0, 8)}…</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    {userRoles.length === 0 ? (
+                      <span className="text-xs text-muted-foreground">student</span>
+                    ) : (
+                      <div className="flex flex-wrap gap-1">
+                        {userRoles.map((r) => (
+                          <span
+                            key={r}
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${
+                              r === "admin"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-primary-soft text-primary"
+                            }`}
+                          >
+                            {r}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground">
+                    {new Date(p.created_at).toLocaleDateString()}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="mt-3 text-xs text-muted-foreground">
+        Read-only audit. To grant or revoke admin access, ask in chat.
+      </p>
     </div>
   );
 }
