@@ -22,7 +22,7 @@ function ForumPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("forum_posts")
-        .select("*, profiles(display_name,avatar_url), forum_replies(count)")
+        .select("*, profiles!forum_posts_profile_fk(display_name,avatar_url), forum_replies(count)")
         .order("created_at", { ascending: false });
       return data ?? [];
     },

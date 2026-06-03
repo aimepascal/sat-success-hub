@@ -20,7 +20,7 @@ function ThreadPage() {
 
   const { data: post } = useQuery({
     queryKey: ["forum-post", postId],
-    queryFn: async () => (await supabase.from("forum_posts").select("*, profiles(display_name,avatar_url)").eq("id", postId).single()).data,
+    queryFn: async () => (await supabase.from("forum_posts").select("*, profiles!forum_posts_profile_fk(display_name,avatar_url)").eq("id", postId).single()).data,
   });
 
   const { data: replies = [] } = useQuery({
@@ -28,7 +28,7 @@ function ThreadPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("forum_replies")
-        .select("*, profiles(display_name,avatar_url)")
+        .select("*, profiles!forum_replies_profile_fk(display_name,avatar_url)")
         .eq("post_id", postId)
         .order("created_at", { ascending: true });
       return data ?? [];

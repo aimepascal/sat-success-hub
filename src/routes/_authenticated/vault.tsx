@@ -133,7 +133,7 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
     queryFn: async () => {
       const { data } = await supabase
         .from("resource_comments")
-        .select("*, profiles(display_name,avatar_url)")
+        .select("*, profiles!resource_comments_profile_fk(display_name,avatar_url)")
         .eq("resource_id", resourceId)
         .order("created_at", { ascending: false });
       return data ?? [];
