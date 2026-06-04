@@ -1,0 +1,11 @@
+# SAT Hub
+
+> Simplified SAT prep, peer community, and international scholarships for global scholars.
+
+SAT Hub helps students master the SAT through bite-sized "cheat codes," a supportive peer forum, and a curated pipeline of international scholarship opportunities.
+
+## Pages
+
+- [Home](/): Overview of SAT Hub and what the platform offers.
+- [Impact](/impact): Mission, outcomes, and community impact.
+- [Join](/auth): Create an account or log in to access the full platform.
