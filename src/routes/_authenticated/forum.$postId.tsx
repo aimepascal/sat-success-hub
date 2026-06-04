@@ -63,7 +63,7 @@ function ThreadPage() {
         <p className="mt-1 text-xs text-muted-foreground">By {post.profiles?.display_name ?? "Scholar"}</p>
         <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed">{post.body}</p>
         {post.image_url && (
-          <img src={post.image_url} alt="Question" className="mt-4 max-h-96 rounded-lg border border-border" />
+          <img src={post.image_url} alt={`Image attached to forum post: ${post.title}`} className="mt-4 max-h-96 rounded-lg border border-border" />
         )}
       </article>
 
