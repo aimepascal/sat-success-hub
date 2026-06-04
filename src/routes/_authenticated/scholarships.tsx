@@ -7,7 +7,13 @@ import { Calendar, ExternalLink, MapPin, Search } from "lucide-react";
 import type { Scholarship } from "@/lib/db-types";
 
 export const Route = createFileRoute("/_authenticated/scholarships")({
-  head: () => ({ meta: [{ title: "Scholarship Pipeline — SAT Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Scholarship Pipeline — SAT Hub" },
+      { name: "description", content: "Filter live international scholarship opportunities across the US, UK, and Australia by deadline, country, and award type." },
+    ],
+    links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/scholarships" }],
+  }),
   component: ScholarshipsPage,
 });
 

@@ -5,10 +5,14 @@ import { ArrowRight, Zap, Users, Globe, TrendingUp, BookOpen, MessageSquare } fr
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SAT Hub — Cheat Codes, Community & Scholarships for Global Scholars" },
+      { title: "SAT Hub — Cheat Codes, Community & Scholarships" },
       { name: "description", content: "Ultra-simplified SAT shortcuts, peer-to-peer breakdowns, and a curated pipeline of international scholarships. Built for students who can't afford to waste time." },
       { property: "og:title", content: "SAT Hub — Cheat Codes, Community & Scholarships" },
       { property: "og:description", content: "Ultra-simplified SAT shortcuts, peer-to-peer breakdowns, and international scholarships in one place." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/" },
+    ],
+    links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/" }],
+  }),
     ],
   }),
   component: Landing,

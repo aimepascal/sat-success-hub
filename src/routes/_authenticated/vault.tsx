@@ -10,7 +10,13 @@ import { toast } from "sonner";
 import type { Resource } from "@/lib/db-types";
 
 export const Route = createFileRoute("/_authenticated/vault")({
-  head: () => ({ meta: [{ title: "Cheat Code Vault — SAT Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Cheat Code Vault — SAT Hub" },
+      { name: "description", content: "Searchable library of ultra-simplified SAT shortcuts and tricks, organized by topic and upvoted by the community." },
+    ],
+    links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/vault" }],
+  }),
   component: VaultPage,
 });
 
