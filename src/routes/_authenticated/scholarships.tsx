@@ -11,6 +11,9 @@ export const Route = createFileRoute("/_authenticated/scholarships")({
     meta: [
       { title: "Scholarship Pipeline — SAT Hub" },
       { name: "description", content: "Filter live international scholarship opportunities across the US, UK, and Australia by deadline, country, and award type." },
+      { property: "og:title", content: "SAT Hub Scholarship Pipeline" },
+      { property: "og:description", content: "A curated, filterable pipeline of international scholarships — by country, deadline, and award type." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/scholarships" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/scholarships" }],
   }),

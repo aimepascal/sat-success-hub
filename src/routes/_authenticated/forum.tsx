@@ -13,6 +13,9 @@ export const Route = createFileRoute("/_authenticated/forum")({
     meta: [
       { title: "Peer Forum — SAT Hub" },
       { name: "description", content: "Ask SAT questions, share screenshots, and get clear peer-to-peer breakdowns from students who've solved them." },
+      { property: "og:title", content: "SAT Hub Peer Forum — Get unstuck on any SAT question" },
+      { property: "og:description", content: "Post a screenshot, get a peer-written breakdown. A focused community for students prepping for the SAT." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/forum" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/forum" }],
   }),

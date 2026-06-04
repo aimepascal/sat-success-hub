@@ -8,6 +8,9 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
     meta: [
       { title: "Dashboard — SAT Hub" },
       { name: "description", content: "Your SAT Hub home base: jump into the Cheat Code Vault, the Peer Forum, or the Scholarship Pipeline." },
+      { property: "og:title", content: "Your SAT Hub Dashboard" },
+      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes, peer threads, and scholarships." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/dashboard" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/dashboard" }],
   }),
