@@ -9,7 +9,13 @@ import { MessageSquare, Plus, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum")({
-  head: () => ({ meta: [{ title: "Peer Forum — SAT Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Peer Forum — SAT Hub" },
+      { name: "description", content: "Ask SAT questions, share screenshots, and get clear peer-to-peer breakdowns from students who've solved them." },
+    ],
+    links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/forum" }],
+  }),
   component: ForumPage,
 });
 

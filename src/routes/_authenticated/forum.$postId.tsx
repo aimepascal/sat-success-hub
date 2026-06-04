@@ -8,7 +8,19 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum/$postId")({
-  head: () => ({ meta: [{ title: "Thread — SAT Hub" }] }),
+  loader: async ({ params }) => {
+    const { data } = await supabase.from("forum_posts").select("title,body").eq("id", params.postId).single();
+    return { title: data?.title ?? "Thread", excerpt: (data?.body ?? "").slice(0, 155) };
+  },
+  head: ({ loaderData, params }) => ({
+    meta: [
+      { title: `${loaderData?.title ?? "Thread"} — SAT Hub Forum` },
+      { name: "description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
+      { property: "og:title", content: loaderData?.title ?? "SAT Hub Forum Thread" },
+      { property: "og:description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
+    ],
+    links: [{ rel: "canonical", href: `https://sat-success-hub.lovable.app/forum/${params?.postId}` }],
+  }),
   component: ThreadPage,
 });
 

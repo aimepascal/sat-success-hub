@@ -4,7 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { BookOpen, MessageSquare, Globe, ArrowRight, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "Dashboard — SAT Hub" }] }),
+  head: () => ({
+    meta: [
+      { title: "Dashboard — SAT Hub" },
+      { name: "description", content: "Your SAT Hub home base: jump into the Cheat Code Vault, the Peer Forum, or the Scholarship Pipeline." },
+    ],
+    links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/dashboard" }],
+  }),
   component: Dashboard,
 });
 
