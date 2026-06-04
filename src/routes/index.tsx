@@ -13,8 +13,6 @@ export const Route = createFileRoute("/")({
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/" }],
   }),
-    ],
-  }),
   component: Landing,
 });
 
