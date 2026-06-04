@@ -14,6 +14,9 @@ export const Route = createFileRoute("/_authenticated/vault")({
     meta: [
       { title: "Cheat Code Vault — SAT Hub" },
       { name: "description", content: "Searchable library of ultra-simplified SAT shortcuts and tricks, organized by topic and upvoted by the community." },
+      { property: "og:title", content: "SAT Cheat Code Vault — Shortcuts that actually work" },
+      { property: "og:description", content: "Browse and upvote bite-sized SAT shortcuts, sorted by topic and contributed by students who scored." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/vault" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/vault" }],
   }),

@@ -10,6 +10,7 @@ export const Route = createFileRoute("/impact")({
       { name: "description", content: "Live metrics showing the real-world footprint of the SAT Hub community: active scholars, peer solutions shared, and average score improvement." },
       { property: "og:title", content: "SAT Hub — Live Community Impact" },
       { property: "og:description", content: "Real numbers. Real students. See what the SAT Hub community has built together." },
+      { property: "og:url", content: "https://sat-success-hub.lovable.app/impact" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/impact" }],
   }),
