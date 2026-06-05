@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Users, Globe, TrendingUp, BookOpen, MessageSquare } from "lucide-react";
+import { ArrowRight, Zap, Globe, TrendingUp, MessageSquare } from "lucide-react";
+import heroImg from "@/assets/hero-students.jpg";
+import studyImg from "@/assets/feature-study.jpg";
+import communityImg from "@/assets/feature-community.jpg";
+import scholarshipsImg from "@/assets/feature-scholarships.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -22,8 +26,8 @@ function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 grid-bg pointer-events-none" />
-        <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-20 sm:px-6 sm:pt-28 lg:pt-32">
-          <div className="mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 pb-20 pt-20 sm:px-6 sm:pt-28 lg:grid-cols-2 lg:pt-32">
+          <div>
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-success" /> Free for students. Forever.
             </div>
@@ -31,10 +35,10 @@ function Landing() {
               The SAT, <span className="text-gradient">simplified.</span><br />
               Scholarships, <span className="text-gradient">unlocked.</span>
             </h1>
-            <p className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
+            <p className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
               Ultra-fast test shortcuts, peer-to-peer breakdowns from students who scored high, and a live pipeline of international scholarships. No fluff. No paywall.
             </p>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
               <Button size="lg" asChild>
                 <Link to="/auth" search={{ mode: "signup" }}>Join the community <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
               </Button>
@@ -42,6 +46,16 @@ function Landing() {
                 <Link to="/impact">See our impact</Link>
               </Button>
             </div>
+          </div>
+          <div className="relative">
+            <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-primary/20 via-transparent to-primary/10 blur-2xl" />
+            <img
+              src={heroImg}
+              alt="Diverse global students celebrating SAT success with rising score chart and scholarship banners"
+              width={1536}
+              height={1024}
+              className="relative rounded-3xl border border-border shadow-card"
+            />
           </div>
         </div>
       </section>
@@ -58,12 +72,15 @@ function Landing() {
 
           <div className="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {features.map((f) => (
-              <div key={f.title} className="group rounded-2xl border border-border bg-card p-6 shadow-card transition hover:border-border-strong">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
-                  <f.icon className="h-5 w-5" />
+              <div key={f.title} className="group overflow-hidden rounded-2xl border border-border bg-card shadow-card transition hover:border-border-strong">
+                <img src={f.image} alt={f.alt} loading="lazy" width={1024} height={768} className="h-40 w-full object-cover" />
+                <div className="p-6">
+                  <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                    <f.icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-display text-base font-semibold">{f.title}</h3>
+                  <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
                 </div>
-                <h3 className="font-display text-base font-semibold">{f.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -91,8 +108,8 @@ function Landing() {
 }
 
 const features = [
-  { icon: Zap, title: "Cheat Code Vault", desc: "Simplified SAT tricks, searchable by topic. Upvote what worked." },
-  { icon: MessageSquare, title: "Peer Forum", desc: "Stuck on a question? Post a screenshot, get a breakdown." },
-  { icon: Globe, title: "Scholarship Pipeline", desc: "Filter US, UK, Australia opportunities by deadline & type." },
-  { icon: TrendingUp, title: "Impact Dashboard", desc: "Live counters showing the community's real footprint." },
+  { icon: Zap, title: "Cheat Code Vault", desc: "Simplified SAT tricks, searchable by topic. Upvote what worked.", image: studyImg, alt: "Student writing notes with SAT prep material" },
+  { icon: MessageSquare, title: "Peer Forum", desc: "Stuck on a question? Post a screenshot, get a breakdown.", image: communityImg, alt: "Group of students collaborating on laptops" },
+  { icon: Globe, title: "Scholarship Pipeline", desc: "Filter US, UK, Australia opportunities by deadline & type.", image: scholarshipsImg, alt: "Graduation cap on a world globe with international flags" },
+  { icon: TrendingUp, title: "Impact Dashboard", desc: "Live counters showing the community's real footprint.", image: studyImg, alt: "Charts showing community impact" },
 ];
