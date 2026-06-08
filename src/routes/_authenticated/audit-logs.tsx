@@ -199,7 +199,7 @@ function AuditLogsPage() {
                     </td>
                   </tr>
                   {open && (
-                    <tr key={l.id + "-d"} className="bg-surface/40">
+                    <tr className="bg-surface/40">
                       <td colSpan={6} className="px-4 py-3">
                         <div className="grid gap-3 md:grid-cols-2">
                           <div>
@@ -218,7 +218,7 @@ function AuditLogsPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </React.Fragment>
               );
             })}
           </tbody>
