@@ -68,7 +68,16 @@ function ForumPage() {
         {posts.map((p) => {
           const replyCount = (p.forum_replies as { count: number }[] | null)?.[0]?.count ?? 0;
           return (
-            <li key={p.id}>
+            <li key={p.id} className="relative">
+              {p.user_id === user.id && (
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm("Delete this post permanently?")) deletePost.mutate(p.id); }}
+                  className="absolute right-3 top-3 z-10 rounded-full bg-card/95 p-1.5 text-muted-foreground shadow-card backdrop-blur transition hover:text-destructive"
+                  aria-label="Delete post"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              )}
               <Link
                 to="/forum/$postId"
                 params={{ postId: p.id }}
