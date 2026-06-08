@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Plus, X, ImagePlus, Loader2 } from "lucide-react";
+import { MessageSquare, Plus, X, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum")({
@@ -24,6 +24,7 @@ export const Route = createFileRoute("/_authenticated/forum")({
 
 function ForumPage() {
   const { user } = Route.useRouteContext();
+  const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
   const { data: posts = [] } = useQuery({
@@ -35,6 +36,18 @@ function ForumPage() {
         .order("created_at", { ascending: false });
       return data ?? [];
     },
+  });
+
+  const deletePost = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("forum_posts").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["forum-posts"] });
+      toast.success("Post deleted");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't delete"),
   });
 
   return (
