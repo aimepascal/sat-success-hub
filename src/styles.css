@@ -36,40 +36,47 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Geist", "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Instrument Serif", "Iowan Old Style", "Apple Garamond", Georgia, serif;
+  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
   --shadow-card: 0 1px 0 0 var(--border), 0 1px 2px 0 color-mix(in oklab, var(--foreground) 4%, transparent);
   --shadow-elevated: 0 8px 24px -12px color-mix(in oklab, var(--primary) 25%, transparent);
 }
 
 :root {
-  --radius: 0.75rem;
-  /* Cloud white + slate + electric blue */
-  --background: oklch(0.992 0.002 247);
-  --foreground: oklch(0.18 0.04 260);
+  --radius: 0.5rem;
+  /* Ocean Deep — navy + teal, editorial paper */
+  --background: oklch(0.985 0.004 220);
+  --foreground: oklch(0.18 0.05 250);
   --surface: oklch(1 0 0);
-  --surface-elevated: oklch(0.985 0.005 247);
+  --surface-elevated: oklch(0.97 0.008 220);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.04 260);
+  --card-foreground: oklch(0.18 0.05 250);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.04 260);
-  --primary: oklch(0.58 0.20 258);
+  --popover-foreground: oklch(0.18 0.05 250);
+  /* #0c2340 deep navy */
+  --primary: oklch(0.25 0.07 252);
   --primary-foreground: oklch(0.99 0 0);
-  --primary-soft: oklch(0.96 0.02 258);
-  --secondary: oklch(0.97 0.008 247);
-  --secondary-foreground: oklch(0.22 0.04 260);
-  --muted: oklch(0.96 0.008 247);
-  --muted-foreground: oklch(0.42 0.03 257);
-  --accent: oklch(0.94 0.03 258);
-  --accent-foreground: oklch(0.30 0.12 258);
-  --destructive: oklch(0.60 0.22 25);
+  --primary-soft: oklch(0.94 0.025 220);
+  --secondary: oklch(0.95 0.012 220);
+  --secondary-foreground: oklch(0.22 0.05 250);
+  --muted: oklch(0.95 0.01 220);
+  --muted-foreground: oklch(0.42 0.03 230);
+  /* #2d8a9e teal accent */
+  --accent: oklch(0.92 0.04 210);
+  --accent-foreground: oklch(0.32 0.09 210);
+  --destructive: oklch(0.58 0.20 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.62 0.15 155);
+  --success: oklch(0.62 0.13 175);
   --success-foreground: oklch(0.99 0 0);
-  --border: oklch(0.92 0.008 247);
-  --border-strong: oklch(0.86 0.012 247);
-  --input: oklch(0.92 0.008 247);
-  --ring: oklch(0.58 0.20 258);
+  --border: oklch(0.90 0.012 220);
+  --border-strong: oklch(0.82 0.018 220);
+  --input: oklch(0.90 0.012 220);
+  --ring: oklch(0.55 0.10 210);
+  /* Brand spot colors */
+  --ink: #0c2340;
+  --tide: #1a4a6e;
+  --lagoon: #2d8a9e;
+  --foam: #5cbdb9;
 }
 
 @layer base {
@@ -98,9 +105,51 @@
     mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
   }
   .text-gradient {
-    background: linear-gradient(135deg, var(--primary) 0%, oklch(0.68 0.18 230) 100%);
+    background: linear-gradient(135deg, var(--ink) 0%, var(--lagoon) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
+  }
+  .underline-sketch {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 8 Q 50 2, 100 6 T 198 5' stroke='%232d8a9e' stroke-width='3' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-position: 0 92%;
+    background-size: 100% 0.45em;
+    padding-bottom: 0.05em;
+  }
+  .circle-sketch {
+    position: relative;
+    display: inline-block;
+  }
+  .circle-sketch::before {
+    content: "";
+    position: absolute;
+    inset: -8px -14px;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'><path d='M20 40 Q 10 10, 100 8 Q 195 12, 188 42 Q 192 72, 100 72 Q 10 74, 22 40' stroke='%235cbdb9' stroke-width='2.5' fill='none' stroke-linecap='round'/></svg>");
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    pointer-events: none;
+  }
+  .arrow-sketch::after {
+    content: "";
+    display: inline-block;
+    width: 28px;
+    height: 14px;
+    margin-left: 6px;
+    vertical-align: middle;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14'><path d='M1 8 Q 10 2, 22 7 M16 3 L 24 7 L 17 12' stroke='%230c2340' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat: no-repeat;
+  }
+  .paper {
+    background-color: oklch(0.985 0.004 220);
+    background-image:
+      radial-gradient(color-mix(in oklab, var(--ink) 6%, transparent) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+  .sticky-note {
+    background: #fef9c3;
+    color: #1f1300;
+    transform: rotate(-1.4deg);
+    box-shadow: 2px 4px 0 rgba(12,35,64,0.12);
   }
 }
