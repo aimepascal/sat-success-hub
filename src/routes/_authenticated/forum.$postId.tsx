@@ -114,12 +114,30 @@ function ThreadPage() {
       </Link>
 
       <article className="mt-4 rounded-2xl border border-border bg-card p-6">
-        <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{post.topic}</span>
+        <div className="flex items-start justify-between gap-3">
+          <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{post.topic}</span>
+          {post.user_id === user.id && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+              disabled={deletePost.isPending}
+              onClick={() => { if (confirm("Delete this post permanently?")) deletePost.mutate(); }}
+            >
+              <Trash2 className="mr-1 h-3.5 w-3.5" /> Delete post
+            </Button>
+          )}
+        </div>
         <h1 className="mt-3 font-display text-2xl font-semibold tracking-tight">{post.title}</h1>
         <p className="mt-1 text-xs text-muted-foreground">By {post.profiles?.display_name ?? "Scholar"}</p>
         <p className="mt-5 whitespace-pre-wrap text-sm leading-relaxed">{post.body}</p>
         {post.image_url && (
-          <img src={post.image_url} alt={`Image attached to forum post: ${post.title}`} className="mt-4 max-h-96 rounded-lg border border-border" />
+          <div className="mt-4 space-y-2">
+            <img src={post.image_url} alt={`Image attached to forum post: ${post.title}`} className="max-h-96 rounded-lg border border-border" />
+            <Button size="sm" variant="outline" onClick={() => downloadImage(post.image_url!)}>
+              <Download className="mr-1 h-3.5 w-3.5" /> Download image
+            </Button>
+          </div>
         )}
       </article>
 
@@ -128,7 +146,18 @@ function ThreadPage() {
         <ul className="mt-4 space-y-3">
           {replies.map((r) => (
             <li key={r.id} className="rounded-xl border border-border bg-card p-4">
-              <p className="text-xs font-medium">{r.profiles?.display_name ?? "Scholar"}</p>
+              <div className="flex items-start justify-between gap-3">
+                <p className="text-xs font-medium">{r.profiles?.display_name ?? "Scholar"}</p>
+                {r.user_id === user.id && (
+                  <button
+                    onClick={() => { if (confirm("Delete this reply?")) deleteReply.mutate(r.id); }}
+                    className="text-xs text-muted-foreground hover:text-destructive"
+                    aria-label="Delete reply"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
               <p className="mt-2 whitespace-pre-wrap text-sm">{r.body}</p>
             </li>
           ))}
