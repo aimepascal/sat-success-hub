@@ -166,7 +166,7 @@ function AuditLogsPage() {
             ) : logs.map((l) => {
               const open = expanded === l.id;
               return (
-                <React.Fragment key={l.id}>
+                <Fragment key={l.id}>
                   <tr className="hover:bg-surface/50">
                     <td className="px-4 py-3 whitespace-nowrap text-muted-foreground">
                       {new Date(l.created_at).toLocaleString()}
@@ -218,7 +218,7 @@ function AuditLogsPage() {
                       </td>
                     </tr>
                   )}
-                </React.Fragment>
+                </Fragment>
               );
             })}
           </tbody>
