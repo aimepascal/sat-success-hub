@@ -31,9 +31,9 @@ function Landing() {
             <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-success" /> Free for students. Forever.
             </div>
-            <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-              The SAT, <span className="text-gradient">simplified.</span><br />
-              Scholarships, <span className="text-gradient">unlocked.</span>
+            <h1 className="font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl whitespace-pre-line">
+              The SAT, simplified.
+              Scholarships, unlocked.
             </h1>
             <p className="mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg">
               Ultra-fast test shortcuts, peer-to-peer breakdowns from students who scored high, and a live pipeline of international scholarships. No fluff. No paywall.
