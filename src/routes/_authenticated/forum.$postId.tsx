@@ -1,10 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum/$postId")({
@@ -28,6 +28,7 @@ function ThreadPage() {
   const { postId } = Route.useParams();
   const { user } = Route.useRouteContext();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [reply, setReply] = useState("");
 
   const { data: post } = useQuery({
@@ -59,7 +60,50 @@ function ThreadPage() {
       qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
       toast.success("Reply posted");
     },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't post reply"),
   });
+
+  const deletePost = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("forum_posts").delete().eq("id", postId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["forum-posts"] });
+      toast.success("Post deleted");
+      navigate({ to: "/forum" });
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't delete"),
+  });
+
+  const deleteReply = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("forum_replies").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
+      toast.success("Reply removed");
+    },
+    onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't delete"),
+  });
+
+  const downloadImage = async (url: string) => {
+    try {
+      const res = await fetch(url);
+      const blob = await res.blob();
+      const ext = (blob.type.split("/")[1] || "jpg").split("+")[0];
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `sat-hub-forum-${postId}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    } catch {
+      toast.error("Couldn't download image");
+    }
+  };
 
   if (!post) return <div className="mx-auto max-w-3xl px-4 py-10">Loading…</div>;
 
