@@ -198,7 +198,7 @@ function FounderNote() {
           <div className="grid h-32 w-32 place-items-center rounded-full bg-gradient-to-br from-[var(--tide)] to-[var(--lagoon)] font-display text-5xl italic text-white shadow-elevated">
             A
           </div>
-          <p className="mt-3 text-center font-display text-lg italic lg:text-left">Aimable</p>
+          <p className="mt-3 text-center font-display text-lg italic lg:text-left">Aime Pascal</p>
           <p className="text-xs text-muted-foreground">Founder · scored 1510 self-taught</p>
         </div>
         <div>
