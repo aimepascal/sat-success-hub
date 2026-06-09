@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Trash2, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum/$postId")({
@@ -73,6 +73,8 @@ function ThreadPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [reply, setReply] = useState("");
+  const [replyImageUrl, setReplyImageUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data: post } = useQuery({
     queryKey: ["forum-post", postId],
@@ -91,15 +93,41 @@ function ThreadPage() {
     },
   });
 
+  const handleReplyImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Please pick an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("forum-images").upload(path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed, error: signErr } = await supabase.storage.from("forum-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+      if (signErr) throw signErr;
+      setReplyImageUrl(signed.signedUrl);
+      toast.success("Image attached");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const submit = useMutation({
     mutationFn: async () => {
       const body = reply.trim();
-      if (!body) return;
-      const { error } = await supabase.from("forum_replies").insert({ post_id: postId, user_id: user.id, body: body.slice(0, 5000) });
+      if (!body && !replyImageUrl) return;
+      const { error } = await supabase.from("forum_replies").insert({
+        post_id: postId,
+        user_id: user.id,
+        body: body.slice(0, 5000),
+        image_url: replyImageUrl,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       setReply("");
+      setReplyImageUrl(null);
       qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
       toast.success("Reply posted");
     },
@@ -131,18 +159,19 @@ function ThreadPage() {
     onError: (e) => toast.error(e instanceof Error ? e.message : "Couldn't delete"),
   });
 
-  const downloadImage = async (url: string) => {
+  const downloadImage = async (url: string, label: string) => {
     try {
       const res = await fetch(url);
+      if (!res.ok) throw new Error("Network error");
       const blob = await res.blob();
       const ext = (blob.type.split("/")[1] || "jpg").split("+")[0];
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `sat-hub-forum-${postId}.${ext}`;
+      a.download = `sat-hub-${label}.${ext}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(a.href);
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     } catch {
       toast.error("Couldn't download image");
     }
@@ -177,7 +206,7 @@ function ThreadPage() {
         {post.image_url && (
           <div className="mt-4 space-y-2">
             <img src={post.image_url} alt={`Image attached to forum post: ${post.title}`} className="max-h-96 rounded-lg border border-border" />
-            <Button size="sm" variant="outline" onClick={() => downloadImage(post.image_url!)}>
+            <Button size="sm" variant="outline" onClick={() => downloadImage(post.image_url!, `post-${postId}`)}>
               <Download className="mr-1 h-3.5 w-3.5" /> Download image
             </Button>
           </div>
@@ -201,14 +230,44 @@ function ThreadPage() {
                   </button>
                 )}
               </div>
-              <p className="mt-2 whitespace-pre-wrap text-sm">{r.body}</p>
+              {r.body && <p className="mt-2 whitespace-pre-wrap text-sm">{r.body}</p>}
+              {r.image_url && (
+                <div className="mt-3 space-y-2">
+                  <img src={r.image_url} alt="Image attached to reply" className="max-h-80 rounded-lg border border-border" loading="lazy" />
+                  <Button size="sm" variant="outline" onClick={() => downloadImage(r.image_url!, `reply-${r.id}`)}>
+                    <Download className="mr-1 h-3.5 w-3.5" /> Download image
+                  </Button>
+                </div>
+              )}
             </li>
           ))}
         </ul>
 
         <div className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-5">
           <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Walk through your step-by-step breakdown..." rows={4} maxLength={5000} />
-          <Button onClick={() => submit.mutate()} disabled={!reply.trim() || submit.isPending}>Post breakdown</Button>
+          {replyImageUrl ? (
+            <div className="relative inline-block">
+              <img src={replyImageUrl} alt="Reply attachment preview" className="max-h-48 rounded-lg border border-border" />
+              <button type="button" onClick={() => setReplyImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-card p-1 shadow-card hover:bg-muted" aria-label="Remove image">
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-surface px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+              {uploading ? "Uploading..." : "Attach an image"}
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
+                disabled={uploading}
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleReplyImage(f); e.target.value = ""; }}
+              />
+            </label>
+          )}
+          <div>
+            <Button onClick={() => submit.mutate()} disabled={(!reply.trim() && !replyImageUrl) || submit.isPending || uploading}>Post breakdown</Button>
+          </div>
         </div>
       </section>
     </div>

@@ -36,6 +36,7 @@ export type ForumReply = {
   post_id: string;
   user_id: string;
   body: string;
+  image_url: string | null;
   created_at: string;
   profiles?: { display_name: string; avatar_url: string | null } | null;
 };

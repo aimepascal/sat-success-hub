@@ -93,6 +93,7 @@ export type Database = {
           body: string
           created_at: string
           id: string
+          image_url: string | null
           post_id: string
           user_id: string
         }
@@ -100,6 +101,7 @@ export type Database = {
           body: string
           created_at?: string
           id?: string
+          image_url?: string | null
           post_id: string
           user_id: string
         }
@@ -107,6 +109,7 @@ export type Database = {
           body?: string
           created_at?: string
           id?: string
+          image_url?: string | null
           post_id?: string
           user_id?: string
         }
