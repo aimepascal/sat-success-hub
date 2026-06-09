@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Download, Trash2 } from "lucide-react";
+import { ArrowLeft, Download, Trash2, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum/$postId")({
@@ -73,6 +73,8 @@ function ThreadPage() {
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [reply, setReply] = useState("");
+  const [replyImageUrl, setReplyImageUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
 
   const { data: post } = useQuery({
     queryKey: ["forum-post", postId],
@@ -91,15 +93,41 @@ function ThreadPage() {
     },
   });
 
+  const handleReplyImage = async (file: File) => {
+    if (!file.type.startsWith("image/")) { toast.error("Please pick an image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("forum-images").upload(path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed, error: signErr } = await supabase.storage.from("forum-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
+      if (signErr) throw signErr;
+      setReplyImageUrl(signed.signedUrl);
+      toast.success("Image attached");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const submit = useMutation({
     mutationFn: async () => {
       const body = reply.trim();
-      if (!body) return;
-      const { error } = await supabase.from("forum_replies").insert({ post_id: postId, user_id: user.id, body: body.slice(0, 5000) });
+      if (!body && !replyImageUrl) return;
+      const { error } = await supabase.from("forum_replies").insert({
+        post_id: postId,
+        user_id: user.id,
+        body: body.slice(0, 5000),
+        image_url: replyImageUrl,
+      });
       if (error) throw error;
     },
     onSuccess: () => {
       setReply("");
+      setReplyImageUrl(null);
       qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
       toast.success("Reply posted");
     },
