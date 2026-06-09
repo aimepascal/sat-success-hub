@@ -18,6 +18,20 @@ export const Route = createFileRoute("/_authenticated/forum")({
       { property: "og:url", content: "https://sat-success-hub.lovable.app/forum" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/forum" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "SAT Hub Peer Forum",
+          url: "https://sat-success-hub.lovable.app/forum",
+          description: "Crowdsourced peer-to-peer breakdowns of tough SAT questions across Math, Reading, Writing, scholarships, and strategy.",
+          inLanguage: "en",
+          isPartOf: { "@id": "https://sat-success-hub.lovable.app/#website" },
+        }),
+      },
+    ],
   }),
   component: ForumPage,
 });

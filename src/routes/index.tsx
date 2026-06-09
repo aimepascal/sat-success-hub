@@ -18,6 +18,31 @@ export const Route = createFileRoute("/")({
       { property: "og:url", content: "https://sat-success-hub.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://sat-success-hub.lovable.app/#organization",
+              name: "SAT Hub",
+              url: "https://sat-success-hub.lovable.app/",
+              description: "Simplified SAT prep, peer community, and international scholarships.",
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://sat-success-hub.lovable.app/#website",
+              url: "https://sat-success-hub.lovable.app/",
+              name: "SAT Hub",
+              publisher: { "@id": "https://sat-success-hub.lovable.app/#organization" },
+              inLanguage: "en",
+            },
+          ],
+        }),
+      },
+    ],
   }),
   component: Landing,
 });

@@ -9,18 +9,61 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/forum/$postId")({
   loader: async ({ params }) => {
-    const { data } = await supabase.from("forum_posts").select("title,body").eq("id", params.postId).single();
-    return { title: data?.title ?? "Thread", excerpt: (data?.body ?? "").slice(0, 155) };
+    const { data: post } = await supabase
+      .from("forum_posts")
+      .select("title,body,created_at")
+      .eq("id", params.postId)
+      .single();
+    const { data: replies } = await supabase
+      .from("forum_replies")
+      .select("body,created_at")
+      .eq("post_id", params.postId)
+      .order("created_at", { ascending: true })
+      .limit(20);
+    return {
+      title: post?.title ?? "Thread",
+      body: post?.body ?? "",
+      createdAt: post?.created_at ?? null,
+      excerpt: (post?.body ?? "").slice(0, 155),
+      replies: replies ?? [],
+    };
   },
-  head: ({ loaderData, params }) => ({
-    meta: [
-      { title: `${loaderData?.title ?? "Thread"} — SAT Hub Forum` },
-      { name: "description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
-      { property: "og:title", content: loaderData?.title ?? "SAT Hub Forum Thread" },
-      { property: "og:description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
-    ],
-    links: [{ rel: "canonical", href: `https://sat-success-hub.lovable.app/forum/${params?.postId}` }],
-  }),
+  head: ({ loaderData, params }) => {
+    const url = `https://sat-success-hub.lovable.app/forum/${params?.postId}`;
+    const qaSchema = loaderData
+      ? {
+          "@context": "https://schema.org",
+          "@type": "QAPage",
+          mainEntity: {
+            "@type": "Question",
+            name: loaderData.title,
+            text: loaderData.body || loaderData.title,
+            dateCreated: loaderData.createdAt,
+            answerCount: loaderData.replies.length,
+            ...(loaderData.replies.length > 0
+              ? {
+                  suggestedAnswer: loaderData.replies.map((r) => ({
+                    "@type": "Answer",
+                    text: r.body,
+                    dateCreated: r.created_at,
+                  })),
+                }
+              : {}),
+          },
+        }
+      : null;
+    return {
+      meta: [
+        { title: `${loaderData?.title ?? "Thread"} — SAT Hub Forum` },
+        { name: "description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
+        { property: "og:title", content: loaderData?.title ?? "SAT Hub Forum Thread" },
+        { property: "og:description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
+        { property: "og:type", content: "article" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+      scripts: qaSchema ? [{ type: "application/ld+json", children: JSON.stringify(qaSchema) }] : [],
+    };
+  },
   component: ThreadPage,
 });
 

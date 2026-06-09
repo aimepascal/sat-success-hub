@@ -19,6 +19,20 @@ export const Route = createFileRoute("/_authenticated/vault")({
       { property: "og:url", content: "https://sat-success-hub.lovable.app/vault" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/vault" }],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: "SAT Cheat Code Vault",
+          url: "https://sat-success-hub.lovable.app/vault",
+          description: "A curated, searchable library of ultra-simplified SAT shortcuts and tricks across Math, Reading, and Writing.",
+          inLanguage: "en",
+          isPartOf: { "@id": "https://sat-success-hub.lovable.app/#website" },
+        }),
+      },
+    ],
   }),
   component: VaultPage,
 });
