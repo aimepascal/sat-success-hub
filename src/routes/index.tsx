@@ -138,13 +138,20 @@ function Hero() {
         </div>
         <div className="relative">
           <div className="absolute -inset-4 rounded-3xl bg-gradient-to-br from-[var(--lagoon)]/25 via-transparent to-[var(--ink)]/15 blur-2xl" />
-          <img
-            src={heroImg}
-            alt="Diverse global students celebrating SAT success with rising score chart and scholarship banners"
-            width={1536}
-            height={1024}
-            className="relative rounded-3xl border border-border shadow-card"
-          />
+          <div className="relative overflow-hidden rounded-3xl border border-border shadow-card">
+            <video
+              src="https://assets.mixkit.co/videos/preview/mixkit-young-woman-typing-on-a-laptop-29495-large.mp4"
+              poster={heroImg}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="metadata"
+              aria-label="Students studying together"
+              className="block aspect-[3/2] w-full object-cover"
+            />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[var(--ink)]/45 via-transparent to-[var(--lagoon)]/20" />
+          </div>
           <div className="sticky-note absolute -bottom-6 -left-4 hidden max-w-[200px] rounded-md p-3 text-xs font-medium sm:block">
             "Got 1480 using just the Vault. Wild." — Amara, Lagos
           </div>
