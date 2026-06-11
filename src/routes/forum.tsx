@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Plus, X, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/forum")({
+export const Route = createFileRoute("/forum")({
   head: () => ({
     meta: [
       { title: "Peer Forum — SAT Hub" },

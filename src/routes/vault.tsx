@@ -9,7 +9,7 @@ import { Heart, MessageSquare, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Resource } from "@/lib/db-types";
 
-export const Route = createFileRoute("/_authenticated/vault")({
+export const Route = createFileRoute("/vault")({
   head: () => ({
     meta: [
       { title: "Cheat Code Vault — SAT Hub" },

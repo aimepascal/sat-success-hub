@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Download, Trash2, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/forum/$postId")({
+export const Route = createFileRoute("/forum/$postId")({
   loader: async ({ params }) => {
     const { data: post } = await supabase
       .from("forum_posts")
