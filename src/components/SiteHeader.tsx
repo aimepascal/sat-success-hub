@@ -2,8 +2,9 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import logoUrl from "@/assets/logo.png";
 
 export function SiteHeader() {
   const [userId, setUserId] = useState<string | null>(null);
@@ -22,26 +23,20 @@ export function SiteHeader() {
     navigate({ to: "/" });
   };
 
-  const navLinks = userId
-    ? [
-        { to: "/dashboard", label: "Dashboard" },
-        { to: "/vault", label: "Vault" },
-        { to: "/forum", label: "Forum" },
-        { to: "/scholarships", label: "Scholarships" },
-        { to: "/impact", label: "Impact" },
-        ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
-      ]
-    : [
-        { to: "/impact", label: "Impact" },
-      ];
+  const navLinks = [
+    ...(userId ? [{ to: "/dashboard", label: "Dashboard" }] : []),
+    { to: "/vault", label: "Vault" },
+    { to: "/forum", label: "Forum" },
+    { to: "/scholarships", label: "Scholarships" },
+    { to: "/impact", label: "Impact" },
+    ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
+  ];
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-base font-semibold tracking-tight">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Sparkles className="h-4 w-4" />
-          </span>
+        <Link to="/" className="flex items-center gap-2 font-display text-base font-semibold tracking-tight" aria-label="SAT Hub home">
+          <img src={logoUrl} alt="" width={32} height={32} className="h-8 w-8" />
           <span>SAT Hub</span>
         </Link>
 

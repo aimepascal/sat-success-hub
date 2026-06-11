@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Calendar, ExternalLink, MapPin, Search } from "lucide-react";
 import type { Scholarship } from "@/lib/db-types";
 
-export const Route = createFileRoute("/_authenticated/scholarships")({
+export const Route = createFileRoute("/scholarships")({
   head: () => ({
     meta: [
       { title: "Scholarship Pipeline — SAT Hub" },

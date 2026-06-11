@@ -5,11 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, MessageSquare, Search, Download } from "lucide-react";
+import { Heart, Search, Download } from "lucide-react";
 import { toast } from "sonner";
 import type { Resource } from "@/lib/db-types";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { SignInGate } from "@/components/SignInGate";
 
-export const Route = createFileRoute("/_authenticated/vault")({
+export const Route = createFileRoute("/vault")({
   head: () => ({
     meta: [
       { title: "Cheat Code Vault — SAT Hub" },
@@ -40,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/vault")({
 const SECTIONS = ["All", "Math", "Reading", "Writing"];
 
 function VaultPage() {
-  const { user } = Route.useRouteContext();
+  const userId = useAuthUser();
   const [q, setQ] = useState("");
   const [section, setSection] = useState("All");
   const [openId, setOpenId] = useState<string | null>(null);
@@ -54,7 +56,8 @@ function VaultPage() {
   });
 
   const { data: likes = [] } = useQuery({
-    queryKey: ["resource-likes"],
+    queryKey: ["resource-likes", userId],
+    enabled: !!userId,
     queryFn: async () => (await supabase.from("resource_likes").select("resource_id,user_id")).data ?? [],
   });
 
@@ -90,9 +93,9 @@ function VaultPage() {
           <ResourceCard
             key={r.id}
             r={r}
-            userId={user.id}
+            userId={userId}
             likeCount={likes.filter((l) => l.resource_id === r.id).length}
-            liked={likes.some((l) => l.resource_id === r.id && l.user_id === user.id)}
+            liked={!!userId && likes.some((l) => l.resource_id === r.id && l.user_id === userId)}
             onOpen={() => setOpenId(r.id)}
           />
         ))}
@@ -103,15 +106,16 @@ function VaultPage() {
         )}
       </div>
 
-      {openId && <ResourceModal resourceId={openId} userId={user.id} onClose={() => setOpenId(null)} />}
+      {openId && <ResourceModal resourceId={openId} userId={userId} onClose={() => setOpenId(null)} />}
     </div>
   );
 }
 
-function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; userId: string; likeCount: number; liked: boolean; onOpen: () => void }) {
+function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; userId: string | null; likeCount: number; liked: boolean; onOpen: () => void }) {
   const qc = useQueryClient();
   const toggle = useMutation({
     mutationFn: async () => {
+      if (!userId) return;
       if (liked) await supabase.from("resource_likes").delete().eq("resource_id", r.id).eq("user_id", userId);
       else await supabase.from("resource_likes").insert({ resource_id: r.id, user_id: userId });
     },
@@ -129,7 +133,11 @@ function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; us
       <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <button
-            onClick={(e) => { e.stopPropagation(); toggle.mutate(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!userId) { toast.info("Sign in to upvote shortcuts."); return; }
+              toggle.mutate();
+            }}
             className={`inline-flex items-center gap-1 transition ${liked ? "text-primary" : "hover:text-foreground"}`}
           >
             <Heart className={`h-3.5 w-3.5 ${liked ? "fill-current" : ""}`} /> {likeCount}
@@ -142,7 +150,7 @@ function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; us
   );
 }
 
-function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; userId: string; onClose: () => void }) {
+function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; userId: string | null; onClose: () => void }) {
   const qc = useQueryClient();
   const [comment, setComment] = useState("");
 
@@ -165,6 +173,7 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
 
   const post = useMutation({
     mutationFn: async () => {
+      if (!userId) return;
       const body = comment.trim();
       if (!body) return;
       const { error } = await supabase.from("resource_comments").insert({ resource_id: resourceId, user_id: userId, body });
@@ -195,8 +204,14 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
         <div className="mt-8">
           <h3 className="text-sm font-semibold">Reflections ({comments.length})</h3>
           <div className="mt-3 space-y-3">
-            <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="How did this trick work for you?" maxLength={500} />
-            <Button size="sm" onClick={() => post.mutate()} disabled={!comment.trim() || post.isPending}>Post reflection</Button>
+            {userId ? (
+              <>
+                <Textarea value={comment} onChange={(e) => setComment(e.target.value)} placeholder="How did this trick work for you?" maxLength={500} />
+                <Button size="sm" onClick={() => post.mutate()} disabled={!comment.trim() || post.isPending}>Post reflection</Button>
+              </>
+            ) : (
+              <SignInGate action="post your own reflection" />
+            )}
           </div>
           <ul className="mt-5 space-y-4">
             {comments.map((c) => (

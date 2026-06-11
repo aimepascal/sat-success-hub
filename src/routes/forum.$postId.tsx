@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Download, Trash2, ImagePlus, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { SignInGate } from "@/components/SignInGate";
 
-export const Route = createFileRoute("/_authenticated/forum/$postId")({
+export const Route = createFileRoute("/forum/$postId")({
   loader: async ({ params }) => {
     const { data: post } = await supabase
       .from("forum_posts")
@@ -69,7 +71,7 @@ export const Route = createFileRoute("/_authenticated/forum/$postId")({
 
 function ThreadPage() {
   const { postId } = Route.useParams();
-  const { user } = Route.useRouteContext();
+  const userId = useAuthUser();
   const qc = useQueryClient();
   const navigate = useNavigate();
   const [reply, setReply] = useState("");
@@ -94,12 +96,13 @@ function ThreadPage() {
   });
 
   const handleReplyImage = async (file: File) => {
+    if (!userId) return;
     if (!file.type.startsWith("image/")) { toast.error("Please pick an image"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image must be under 5MB"); return; }
     setUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+      const path = `${userId}/${crypto.randomUUID()}.${ext}`;
       const { error: upErr } = await supabase.storage.from("forum-images").upload(path, file, { contentType: file.type });
       if (upErr) throw upErr;
       const { data: signed, error: signErr } = await supabase.storage.from("forum-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 5);
@@ -115,11 +118,12 @@ function ThreadPage() {
 
   const submit = useMutation({
     mutationFn: async () => {
+      if (!userId) return;
       const body = reply.trim();
       if (!body && !replyImageUrl) return;
       const { error } = await supabase.from("forum_replies").insert({
         post_id: postId,
-        user_id: user.id,
+        user_id: userId,
         body: body.slice(0, 5000),
         image_url: replyImageUrl,
       });
@@ -188,7 +192,7 @@ function ThreadPage() {
       <article className="mt-4 rounded-2xl border border-border bg-card p-6">
         <div className="flex items-start justify-between gap-3">
           <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{post.topic}</span>
-          {post.user_id === user.id && (
+          {userId && post.user_id === userId && (
             <Button
               size="sm"
               variant="ghost"
@@ -220,7 +224,7 @@ function ThreadPage() {
             <li key={r.id} className="rounded-xl border border-border bg-card p-4">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-xs font-medium">{r.profiles?.display_name ?? "Scholar"}</p>
-                {r.user_id === user.id && (
+                {userId && r.user_id === userId && (
                   <button
                     onClick={() => { if (confirm("Delete this reply?")) deleteReply.mutate(r.id); }}
                     className="text-xs text-muted-foreground hover:text-destructive"
@@ -243,32 +247,38 @@ function ThreadPage() {
           ))}
         </ul>
 
-        <div className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-5">
-          <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Walk through your step-by-step breakdown..." rows={4} maxLength={5000} />
-          {replyImageUrl ? (
-            <div className="relative inline-block">
-              <img src={replyImageUrl} alt="Reply attachment preview" className="max-h-48 rounded-lg border border-border" />
-              <button type="button" onClick={() => setReplyImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-card p-1 shadow-card hover:bg-muted" aria-label="Remove image">
-                <X className="h-3.5 w-3.5" />
-              </button>
+        {userId ? (
+          <div className="mt-6 space-y-3 rounded-2xl border border-border bg-card p-5">
+            <Textarea value={reply} onChange={(e) => setReply(e.target.value)} placeholder="Walk through your step-by-step breakdown..." rows={4} maxLength={5000} />
+            {replyImageUrl ? (
+              <div className="relative inline-block">
+                <img src={replyImageUrl} alt="Reply attachment preview" className="max-h-48 rounded-lg border border-border" />
+                <button type="button" onClick={() => setReplyImageUrl(null)} className="absolute -right-2 -top-2 rounded-full bg-card p-1 shadow-card hover:bg-muted" aria-label="Remove image">
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-surface px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
+                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
+                {uploading ? "Uploading..." : "Attach an image"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  disabled={uploading}
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleReplyImage(f); e.target.value = ""; }}
+                />
+              </label>
+            )}
+            <div>
+              <Button onClick={() => submit.mutate()} disabled={(!reply.trim() && !replyImageUrl) || submit.isPending || uploading}>Post breakdown</Button>
             </div>
-          ) : (
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-surface px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-              {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ImagePlus className="h-4 w-4" />}
-              {uploading ? "Uploading..." : "Attach an image"}
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                disabled={uploading}
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleReplyImage(f); e.target.value = ""; }}
-              />
-            </label>
-          )}
-          <div>
-            <Button onClick={() => submit.mutate()} disabled={(!reply.trim() && !replyImageUrl) || submit.isPending || uploading}>Post breakdown</Button>
           </div>
-        </div>
+        ) : (
+          <div className="mt-6">
+            <SignInGate action="post a breakdown" />
+          </div>
+        )}
       </section>
     </div>
   );

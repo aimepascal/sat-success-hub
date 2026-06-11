@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare, Plus, X, ImagePlus, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAuthUser } from "@/hooks/use-auth-user";
+import { SignInGate } from "@/components/SignInGate";
 
-export const Route = createFileRoute("/_authenticated/forum")({
+export const Route = createFileRoute("/forum")({
   head: () => ({
     meta: [
       { title: "Peer Forum — SAT Hub" },
@@ -37,7 +39,7 @@ export const Route = createFileRoute("/_authenticated/forum")({
 });
 
 function ForumPage() {
-  const { user } = Route.useRouteContext();
+  const userId = useAuthUser();
   const qc = useQueryClient();
   const [showForm, setShowForm] = useState(false);
 
@@ -71,19 +73,27 @@ function ForumPage() {
           <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Crowdsourced Breakdowns</h1>
           <p className="mt-2 text-muted-foreground">Stuck on a question? Post it. Peers will break it down.</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)}>
-          {showForm ? <><X className="mr-1 h-4 w-4" /> Cancel</> : <><Plus className="mr-1 h-4 w-4" /> New question</>}
-        </Button>
+        {userId ? (
+          <Button onClick={() => setShowForm(!showForm)}>
+            {showForm ? <><X className="mr-1 h-4 w-4" /> Cancel</> : <><Plus className="mr-1 h-4 w-4" /> New question</>}
+          </Button>
+        ) : null}
       </div>
 
-      {showForm && <NewPostForm userId={user.id} onDone={() => setShowForm(false)} />}
+      {!userId && (
+        <div className="mt-6">
+          <SignInGate action="post a question or reply" />
+        </div>
+      )}
+
+      {showForm && userId && <NewPostForm userId={userId} onDone={() => setShowForm(false)} />}
 
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {posts.map((p) => {
           const replyCount = (p.forum_replies as { count: number }[] | null)?.[0]?.count ?? 0;
           return (
             <li key={p.id} className="relative">
-              {p.user_id === user.id && (
+              {userId && p.user_id === userId && (
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (confirm("Delete this post permanently?")) deletePost.mutate(p.id); }}
                   className="absolute right-3 top-3 z-10 rounded-full bg-card/95 p-1.5 text-muted-foreground shadow-card backdrop-blur transition hover:text-destructive"
