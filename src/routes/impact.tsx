@@ -21,20 +21,15 @@ function ImpactPage() {
   const { data, isLoading } = useQuery({
     queryKey: ["impact"],
     queryFn: async () => {
-      const [scholars, posts, replies, comments, profiles] = await Promise.all([
+      const [scholars, posts, replies, comments, avgRpc] = await Promise.all([
         supabase.from("profiles").select("*", { count: "exact", head: true }),
         supabase.from("forum_posts").select("*", { count: "exact", head: true }),
         supabase.from("forum_replies").select("*", { count: "exact", head: true }),
         supabase.from("resource_comments").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("score_improvement"),
+        supabase.rpc("get_avg_score_improvement"),
       ]);
 
-      const improvements = (profiles.data ?? [])
-        .map((p) => p.score_improvement)
-        .filter((n): n is number => typeof n === "number" && n > 0);
-      const avg = improvements.length
-        ? Math.round(improvements.reduce((a, b) => a + b, 0) / improvements.length)
-        : 120;
+      const avg = typeof avgRpc.data === "number" ? avgRpc.data : 120;
 
       return {
         scholars: scholars.count ?? 0,
