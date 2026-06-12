@@ -130,11 +130,9 @@ export type Database = {
           },
         ]
       }
-      profiles: {
+      profile_private: {
         Row: {
-          avatar_url: string | null
           created_at: string
-          display_name: string
           id: string
           school: string | null
           score_improvement: number | null
@@ -142,9 +140,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string
-          display_name: string
           id: string
           school?: string | null
           score_improvement?: number | null
@@ -152,13 +148,35 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string
-          display_name?: string
           id?: string
           school?: string | null
           score_improvement?: number | null
           target_score?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
           updated_at?: string
         }
         Relationships: []
@@ -332,6 +350,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_avg_score_improvement: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
