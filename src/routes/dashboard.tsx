@@ -1,15 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { BookOpen, MessageSquare, Globe, ArrowRight, Zap } from "lucide-react";
+import { MessageSquare, Globe, ArrowRight, Zap, Sparkles } from "lucide-react";
+import { useAuthUser } from "@/hooks/use-auth-user";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — SAT Hub" },
-      { name: "description", content: "Your SAT Hub home base: jump into the Cheat Code Vault, the Peer Forum, or the Scholarship Pipeline." },
-      { property: "og:title", content: "Your SAT Hub Dashboard" },
-      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes, peer threads, and scholarships." },
+      { title: "Explore SAT Hub — Dashboard" },
+      { name: "description", content: "Jump into the Cheat Code Vault, the Peer Forum, the Scholarship Pipeline, or see live community impact. Free to browse, no account required." },
+      { property: "og:title", content: "Explore the SAT Hub Dashboard" },
+      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes, peer threads, and scholarships. Browse freely." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/dashboard" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/dashboard" }],
@@ -18,12 +19,13 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function Dashboard() {
-  const { user } = Route.useRouteContext();
+  const userId = useAuthUser();
 
   const { data: profile } = useQuery({
-    queryKey: ["profile", user.id],
+    queryKey: ["profile", userId],
+    enabled: !!userId,
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
+      const { data } = await supabase.from("profiles").select("*").eq("id", userId!).maybeSingle();
       return data;
     },
   });
@@ -48,10 +50,26 @@ function Dashboard() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div>
-        <p className="text-sm text-muted-foreground">Welcome back,</p>
-        <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          {profile?.display_name ?? "Scholar"}
-        </h1>
+        {userId ? (
+          <>
+            <p className="text-sm text-muted-foreground">Welcome back,</p>
+            <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              {profile?.display_name ?? "Scholar"}
+            </h1>
+          </>
+        ) : (
+          <>
+            <p className="inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wider text-primary">
+              <Sparkles className="h-3.5 w-3.5" /> Explore SAT Hub
+            </p>
+            <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
+              Browse everything. No account needed.
+            </h1>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              Read the vault, follow live forum threads, scan scholarships. Create a free account only when you want to post, reply, or save your progress.
+            </p>
+          </>
+        )}
       </div>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-3">
@@ -94,7 +112,9 @@ function Dashboard() {
           <ul className="mt-4 divide-y divide-border">
             {(recent?.posts ?? []).map((p) => (
               <li key={p.id} className="py-3">
-                <p className="text-sm font-medium">{p.title}</p>
+                <Link to="/forum/$postId" params={{ postId: p.id }} className="text-sm font-medium hover:text-primary">
+                  {p.title}
+                </Link>
                 <p className="mt-0.5 text-xs text-muted-foreground">{p.topic}</p>
               </li>
             ))}

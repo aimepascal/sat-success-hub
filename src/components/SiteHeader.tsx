@@ -24,7 +24,7 @@ export function SiteHeader() {
   };
 
   const navLinks = [
-    ...(userId ? [{ to: "/dashboard", label: "Dashboard" }] : []),
+    { to: "/dashboard", label: userId ? "Dashboard" : "Explore" },
     { to: "/vault", label: "Vault" },
     { to: "/forum", label: "Forum" },
     { to: "/scholarships", label: "Scholarships" },
