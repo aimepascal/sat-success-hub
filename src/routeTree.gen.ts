@@ -13,11 +13,11 @@ import { Route as VaultRouteImport } from './routes/vault'
 import { Route as ScholarshipsRouteImport } from './routes/scholarships'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as ForumRouteImport } from './routes/forum'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ForumPostIdRouteImport } from './routes/forum.$postId'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
@@ -41,6 +41,11 @@ const ForumRoute = ForumRouteImport.update({
   path: '/forum',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -60,11 +65,6 @@ const ForumPostIdRoute = ForumPostIdRouteImport.update({
   path: '/$postId',
   getParentRoute: () => ForumRoute,
 } as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
 const AuthenticatedAuditLogsRoute = AuthenticatedAuditLogsRouteImport.update({
   id: '/audit-logs',
   path: '/audit-logs',
@@ -79,25 +79,25 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRouteWithChildren
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRouteWithChildren
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
-  '/dashboard': typeof AuthenticatedDashboardRoute
   '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesById {
@@ -105,13 +105,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRouteWithChildren
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit-logs': typeof AuthenticatedAuditLogsRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRouteTypes {
@@ -119,38 +119,38 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/dashboard'
     | '/forum'
     | '/impact'
     | '/scholarships'
     | '/vault'
     | '/admin'
     | '/audit-logs'
-    | '/dashboard'
     | '/forum/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/dashboard'
     | '/forum'
     | '/impact'
     | '/scholarships'
     | '/vault'
     | '/admin'
     | '/audit-logs'
-    | '/dashboard'
     | '/forum/$postId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/dashboard'
     | '/forum'
     | '/impact'
     | '/scholarships'
     | '/vault'
     | '/_authenticated/admin'
     | '/_authenticated/audit-logs'
-    | '/_authenticated/dashboard'
     | '/forum/$postId'
   fileRoutesById: FileRoutesById
 }
@@ -158,6 +158,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DashboardRoute: typeof DashboardRoute
   ForumRoute: typeof ForumRouteWithChildren
   ImpactRoute: typeof ImpactRoute
   ScholarshipsRoute: typeof ScholarshipsRoute
@@ -194,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -222,13 +230,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForumPostIdRouteImport
       parentRoute: typeof ForumRoute
     }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
     '/_authenticated/audit-logs': {
       id: '/_authenticated/audit-logs'
       path: '/audit-logs'
@@ -249,13 +250,11 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedAuditLogsRoute: typeof AuthenticatedAuditLogsRoute
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedAuditLogsRoute: AuthenticatedAuditLogsRoute,
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -275,6 +274,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  DashboardRoute: DashboardRoute,
   ForumRoute: ForumRouteWithChildren,
   ImpactRoute: ImpactRoute,
   ScholarshipsRoute: ScholarshipsRoute,
