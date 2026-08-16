@@ -146,33 +146,36 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
     const draft = parseDraft(type, raw);
 
     if (type === "resource") {
+      const d = draft as ResourceDraft;
       const { error } = await context.supabase.from("resources").insert({
-        title: draft.title,
-        category: draft.category,
-        section: draft.section,
-        summary: draft.summary,
-        content: draft.content,
+        title: d.title,
+        category: d.category,
+        section: d.section,
+        summary: d.summary,
+        content: d.content,
         author_id: context.userId,
       });
       if (error) throw error;
     } else if (type === "scholarship") {
+      const d = draft as ScholarshipDraft;
       const { error } = await context.supabase.from("scholarships").insert({
-        name: draft.name,
-        institution: draft.institution,
-        country: draft.country,
-        scholarship_type: draft.scholarship_type,
-        amount: draft.amount,
-        deadline: draft.deadline,
-        description: draft.description,
-        apply_url: draft.apply_url,
+        name: d.name,
+        institution: d.institution,
+        country: d.country,
+        scholarship_type: d.scholarship_type,
+        amount: d.amount,
+        deadline: d.deadline,
+        description: d.description,
+        apply_url: d.apply_url,
       });
       if (error) throw error;
     } else if (type === "forum_post") {
+      const d = draft as ForumPostDraft;
       const { error } = await context.supabase.from("forum_posts").insert({
         user_id: context.userId,
-        title: draft.title,
-        body: draft.body,
-        topic: draft.topic,
+        title: d.title,
+        body: d.body,
+        topic: d.topic,
       });
       if (error) throw error;
     }
