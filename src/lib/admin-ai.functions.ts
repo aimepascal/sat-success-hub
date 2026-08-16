@@ -27,6 +27,33 @@ const publishInputSchema = z.object({
 export type ContentType = z.infer<typeof contentTypeSchema>;
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
 
+export type ResourceDraft = {
+  title: string;
+  category: string;
+  section: string;
+  summary: string;
+  content: string;
+};
+
+export type ScholarshipDraft = {
+  name: string;
+  institution: string;
+  country: string;
+  scholarship_type: string;
+  amount: string | null;
+  deadline: string;
+  description: string;
+  apply_url: string;
+};
+
+export type ForumPostDraft = {
+  title: string;
+  body: string;
+  topic: string;
+};
+
+export type GeneratedDraft = ResourceDraft | ScholarshipDraft | ForumPostDraft;
+
 export const generateContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => generateInputSchema.parse(data))
@@ -94,8 +121,10 @@ export const generateContent = createServerFn({ method: "POST" })
       throw new Error("AI returned invalid JSON");
     }
 
+    const draft = parseDraft(data.type, parsed);
+
     return {
-      draft: parsed,
+      draft,
       assistantMessage: { role: "assistant" as const, content: assistantContent },
       runId,
     };
@@ -113,45 +142,81 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
       throw new Error("Forbidden: admin access required");
     }
 
-    const { type, draft } = data;
+    const { type, draft: raw } = data;
+    const draft = parseDraft(type, raw);
 
     if (type === "resource") {
-      const resource = draft as Record<string, string>;
       const { error } = await context.supabase.from("resources").insert({
-        title: resource.title,
-        category: resource.category,
-        section: resource.section,
-        summary: resource.summary,
-        content: resource.content,
+        title: draft.title,
+        category: draft.category,
+        section: draft.section,
+        summary: draft.summary,
+        content: draft.content,
         author_id: context.userId,
       });
       if (error) throw error;
     } else if (type === "scholarship") {
-      const scholarship = draft as Record<string, string | null>;
       const { error } = await context.supabase.from("scholarships").insert({
-        name: scholarship.name,
-        institution: scholarship.institution,
-        country: scholarship.country,
-        scholarship_type: scholarship.scholarship_type,
-        amount: scholarship.amount ?? null,
-        deadline: scholarship.deadline,
-        description: scholarship.description,
-        apply_url: scholarship.apply_url,
+        name: draft.name,
+        institution: draft.institution,
+        country: draft.country,
+        scholarship_type: draft.scholarship_type,
+        amount: draft.amount,
+        deadline: draft.deadline,
+        description: draft.description,
+        apply_url: draft.apply_url,
       });
       if (error) throw error;
     } else if (type === "forum_post") {
-      const post = draft as Record<string, string>;
       const { error } = await context.supabase.from("forum_posts").insert({
         user_id: context.userId,
-        title: post.title,
-        body: post.body,
-        topic: post.topic,
+        title: draft.title,
+        body: draft.body,
+        topic: draft.topic,
       });
       if (error) throw error;
     }
 
     return { ok: true };
   });
+
+function parseDraft(type: ContentType, raw: Record<string, unknown>): GeneratedDraft {
+  switch (type) {
+    case "resource":
+      return {
+        title: getString(raw, "title"),
+        category: getString(raw, "category"),
+        section: getString(raw, "section"),
+        summary: getString(raw, "summary"),
+        content: getString(raw, "content"),
+      };
+    case "scholarship":
+      return {
+        name: getString(raw, "name"),
+        institution: getString(raw, "institution"),
+        country: getString(raw, "country"),
+        scholarship_type: getString(raw, "scholarship_type"),
+        amount: raw.amount === null ? null : getString(raw, "amount"),
+        deadline: getString(raw, "deadline"),
+        description: getString(raw, "description"),
+        apply_url: getString(raw, "apply_url"),
+      };
+    case "forum_post":
+      return {
+        title: getString(raw, "title"),
+        body: getString(raw, "body"),
+        topic: getString(raw, "topic"),
+      };
+  }
+}
+
+function getString(raw: Record<string, unknown>, key: string): string {
+  const value = raw[key];
+  if (typeof value !== "string" || value.length === 0) {
+    throw new Error(`Generated draft is missing required field: ${key}`);
+  }
+  return value;
+}
 
 function buildSystemPrompt(type: ContentType): string {
   const base = "Return ONLY valid JSON matching the provided schema. Do not include markdown code fences or explanatory text outside the JSON.";
