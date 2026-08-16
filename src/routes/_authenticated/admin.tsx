@@ -7,15 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, ShieldAlert } from "lucide-react";
+import { Pencil, Trash2, Plus, ShieldAlert, Sparkles, Send, Loader2 } from "lucide-react";
 import type { Resource, Scholarship } from "@/lib/db-types";
+import type { ContentType, ChatMessage, GeneratedDraft } from "@/lib/admin-ai.functions";
+import { generateContent, publishGeneratedContent } from "@/lib/admin-ai.functions";
+import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Admin Panel — SAT Hub" }] }),
   component: AdminPage,
 });
 
-type Tab = "resources" | "scholarships" | "users";
+type Tab = "resources" | "scholarships" | "users" | "ai";
 
 function AdminPage() {
   const { user } = Route.useRouteContext();
