@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, ShieldAlert, Sparkles, Send, Loader2 } from "lucide-react";
 import type { Resource, Scholarship } from "@/lib/db-types";
-import type { ContentType, ChatMessage, GeneratedDraft } from "@/lib/admin-ai.functions";
+import type { ContentType, ChatMessage, GeneratedDraft, ResourceDraft, ScholarshipDraft, ForumPostDraft } from "@/lib/admin-ai.functions";
 import { generateContent, publishGeneratedContent } from "@/lib/admin-ai.functions";
 import { useServerFn } from "@tanstack/react-start";
 
