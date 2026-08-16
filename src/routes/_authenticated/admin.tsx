@@ -394,6 +394,200 @@ function ScholarshipsAdmin() {
   );
 }
 
+/* -------------------- AI COPILOT -------------------- */
+
+const PLACEHOLDERS: Record<ContentType, string> = {
+  resource: "e.g., A quick trick for solving systems of linear equations without full algebra",
+  scholarship: "e.g., Full-ride scholarship for African students applying to US universities, deadline December 1",
+  forum_post: "e.g., How do I stop running out of time on the Reading section?",
+};
+
+function AiCopilot({ authorId }: { authorId: string }) {
+  const qc = useQueryClient();
+  const generate = useServerFn(generateContent);
+  const publish = useServerFn(publishGeneratedContent);
+
+  const [type, setType] = useState<ContentType>("resource");
+  const [prompt, setPrompt] = useState("");
+  const [history, setHistory] = useState<ChatMessage[]>([]);
+  const [draft, setDraft] = useState<GeneratedDraft | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [refine, setRefine] = useState("");
+
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    setLoading(true);
+    try {
+      const userMsg: ChatMessage = { role: "user", content: prompt.trim() };
+      const res = await generate({ data: { type, prompt: prompt.trim(), history } });
+      setHistory([...history, userMsg, res.assistantMessage]);
+      setDraft(res.draft);
+      setPrompt("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Generation failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRefine = async () => {
+    if (!refine.trim()) return;
+    setLoading(true);
+    try {
+      const userMsg: ChatMessage = { role: "user", content: refine.trim() };
+      const res = await generate({ data: { type, prompt: refine.trim(), history } });
+      setHistory([...history, userMsg, res.assistantMessage]);
+      setDraft(res.draft);
+      setRefine("");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Refinement failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!draft) return;
+    try {
+      await publish({ data: { type, draft } });
+      toast.success("Published");
+      qc.invalidateQueries({ queryKey: ["admin-resources"] });
+      qc.invalidateQueries({ queryKey: ["admin-scholarships"] });
+      qc.invalidateQueries({ queryKey: ["resources"] });
+      qc.invalidateQueries({ queryKey: ["scholarships"] });
+      qc.invalidateQueries({ queryKey: ["forum-posts"] });
+      setDraft(null);
+      setHistory([]);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Publish failed");
+    }
+  };
+
+  return (
+    <div className="grid gap-6 lg:grid-cols-2">
+      <section className="space-y-4 rounded-2xl border border-border bg-card p-6">
+        <div>
+          <h2 className="font-display text-lg font-semibold flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" /> AI Copilot
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">Generate a draft, refine it by chatting, then publish.</p>
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          {(["resource", "scholarship", "forum_post"] as ContentType[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => { setType(t); setDraft(null); setHistory([]); setPrompt(""); setRefine(""); }}
+              className={`rounded-full px-3 py-1 text-xs font-medium capitalize transition ${type === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground"}`}
+            >
+              {t === "forum_post" ? "Forum post" : t}
+            </button>
+          ))}
+        </div>
+
+        <Textarea
+          placeholder={PLACEHOLDERS[type]}
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows={4}
+        />
+        <Button onClick={handleGenerate} disabled={loading || !prompt.trim()}>
+          {loading ? <Loader2 className="mr-1 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1 h-4 w-4" />}
+          Generate
+        </Button>
+
+        {history.length > 0 && (
+          <div className="mt-4 space-y-3 rounded-xl bg-surface p-4">
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Conversation</h3>
+            {history.map((m, i) => (
+              <div key={i} className="text-sm">
+                <span className="text-xs uppercase text-primary">{m.role === "user" ? "You" : "AI"}</span>
+                <p className={`mt-0.5 ${m.role === "user" ? "font-medium" : "text-muted-foreground"}`}>
+                  {m.role === "assistant" ? "Generated a new draft" : m.content}
+                </p>
+              </div>
+            ))}
+            <div className="flex gap-2 pt-2">
+              <Input
+                placeholder="Ask to refine: make it shorter, add an example..."
+                value={refine}
+                onChange={(e) => setRefine(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void handleRefine(); } }}
+              />
+              <Button size="icon" onClick={handleRefine} disabled={loading || !refine.trim()}>
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="rounded-2xl border border-border bg-card p-6">
+        <div className="flex items-center justify-between">
+          <h3 className="font-display text-lg font-semibold">Draft preview</h3>
+          {draft && (
+            <Button size="sm" onClick={handlePublish}>
+              Publish
+            </Button>
+          )}
+        </div>
+        {draft ? (
+          <div className="mt-4 space-y-4">
+            {type === "resource" && <ResourcePreview draft={draft as ResourceDraft} />}
+            {type === "scholarship" && <ScholarshipPreview draft={draft as ScholarshipDraft} />}
+            {type === "forum_post" && <ForumPostPreview draft={draft as ForumPostDraft} />}
+          </div>
+        ) : (
+          <p className="mt-8 text-center text-sm text-muted-foreground">Generate a draft to see the preview here.</p>
+        )}
+      </section>
+    </div>
+  );
+}
+
+function ResourcePreview({ draft }: { draft: ResourceDraft }) {
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        <span className="inline-flex items-center rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-primary">{draft.section}</span>
+        <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{draft.category}</span>
+      </div>
+      <h4 className="font-display text-xl font-semibold">{draft.title}</h4>
+      <p className="text-sm text-muted-foreground">{draft.summary}</p>
+      <div className="prose prose-sm max-w-none text-sm text-foreground">
+        {draft.content.split("\n").map((p, i) => p ? <p key={i}>{p}</p> : <br key={i} />)}
+      </div>
+    </div>
+  );
+}
+
+function ScholarshipPreview({ draft }: { draft: ScholarshipDraft }) {
+  return (
+    <div className="space-y-3">
+      <h4 className="font-display text-xl font-semibold">{draft.name}</h4>
+      <div className="grid gap-2 text-sm">
+        <div><span className="text-muted-foreground">Institution:</span> {draft.institution}</div>
+        <div><span className="text-muted-foreground">Country:</span> {draft.country}</div>
+        <div><span className="text-muted-foreground">Type:</span> {draft.scholarship_type}</div>
+        <div><span className="text-muted-foreground">Amount:</span> {draft.amount ?? "Not specified"}</div>
+        <div><span className="text-muted-foreground">Deadline:</span> {draft.deadline}</div>
+      </div>
+      <p className="text-sm text-muted-foreground">{draft.description}</p>
+      <a href={draft.apply_url} target="_blank" rel="noreferrer" className="inline-block text-sm font-medium text-primary hover:underline">{draft.apply_url}</a>
+    </div>
+  );
+}
+
+function ForumPostPreview({ draft }: { draft: ForumPostDraft }) {
+  return (
+    <div className="space-y-3">
+      <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-accent-foreground">{draft.topic}</span>
+      <h4 className="font-display text-xl font-semibold">{draft.title}</h4>
+      <p className="whitespace-pre-line text-sm text-muted-foreground">{draft.body}</p>
+    </div>
+  );
+}
+
 /* -------------------- USERS AUDIT -------------------- */
 
 function UsersAudit() {
