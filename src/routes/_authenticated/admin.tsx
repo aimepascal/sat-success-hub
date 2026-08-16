@@ -48,14 +48,14 @@ function AdminPage() {
         <p className="mt-2 text-muted-foreground">Manage the Cheat Code Vault and Scholarship Pipeline.</p>
       </div>
 
-      <div className="mt-8 flex gap-1 rounded-lg border border-border bg-surface p-1 w-fit">
-        {(["resources", "scholarships", "users"] as Tab[]).map((t) => (
+      <div className="mt-8 flex gap-1 rounded-lg border border-border bg-surface p-1 w-fit flex-wrap">
+        {(["resources", "scholarships", "users", "ai"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            {t === "resources" ? "Cheat Codes" : t === "scholarships" ? "Scholarships" : "Users & Roles"}
+            {t === "resources" ? "Cheat Codes" : t === "scholarships" ? "Scholarships" : t === "users" ? "Users & Roles" : "AI Copilot"}
           </button>
         ))}
       </div>
@@ -64,6 +64,7 @@ function AdminPage() {
         {tab === "resources" && <ResourcesAdmin authorId={user.id} />}
         {tab === "scholarships" && <ScholarshipsAdmin />}
         {tab === "users" && <UsersAudit />}
+        {tab === "ai" && <AiCopilot authorId={user.id} />}
       </div>
     </div>
   );
