@@ -555,7 +555,7 @@ function ResourcePreview({ draft }: { draft: ResourceDraft }) {
       <h4 className="font-display text-xl font-semibold">{draft.title}</h4>
       <p className="text-sm text-muted-foreground">{draft.summary}</p>
       <div className="prose prose-sm max-w-none text-sm text-foreground">
-        {draft.content.split("\n").map((p, i) => p ? <p key={i}>{p}</p> : <br key={i} />)}
+        {draft.content.split("\n").map((p: string, i: number) => p ? <p key={i}>{p}</p> : <br key={i} />)}
       </div>
     </div>
   );
