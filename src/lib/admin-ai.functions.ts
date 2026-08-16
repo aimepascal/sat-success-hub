@@ -27,24 +27,17 @@ const publishInputSchema = z.object({
 export type ContentType = z.infer<typeof contentTypeSchema>;
 export type ChatMessage = z.infer<typeof chatMessageSchema>;
 
-async function requireAdmin(context: {
-  supabase: { rpc: (name: string, args: Record<string, unknown>) => Promise<{ data: boolean | null; error: Error | null }> };
-  userId: string;
-}) {
-  const { data: isAdmin, error } = await context.supabase.rpc("has_role", {
-    _user_id: context.userId,
-    _role: "admin",
-  });
-  if (error || !isAdmin) {
-    throw new Error("Forbidden: admin access required");
-  }
-}
-
 export const generateContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => generateInputSchema.parse(data))
   .handler(async ({ data, context }) => {
-    await requireAdmin(context);
+    const { data: isAdmin, error: roleErr } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (roleErr || !isAdmin) {
+      throw new Error("Forbidden: admin access required");
+    }
 
     const apiKey = process.env["LOVABLE_API_KEY"];
     if (!apiKey) {
@@ -94,15 +87,15 @@ export const generateContent = createServerFn({ method: "POST" })
       throw new Error("AI returned empty content");
     }
 
-    let draft: unknown;
+    let parsed: Record<string, unknown>;
     try {
-      draft = JSON.parse(assistantContent);
+      parsed = JSON.parse(assistantContent) as Record<string, unknown>;
     } catch {
       throw new Error("AI returned invalid JSON");
     }
 
     return {
-      draft,
+      draft: parsed,
       assistantMessage: { role: "assistant" as const, content: assistantContent },
       runId,
     };
@@ -112,12 +105,18 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => publishInputSchema.parse(data))
   .handler(async ({ data, context }) => {
-    await requireAdmin(context);
+    const { data: isAdmin, error: roleErr } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (roleErr || !isAdmin) {
+      throw new Error("Forbidden: admin access required");
+    }
 
     const { type, draft } = data;
 
     if (type === "resource") {
-      const resource = draft as Record<string, unknown>;
+      const resource = draft as Record<string, string>;
       const { error } = await context.supabase.from("resources").insert({
         title: resource.title,
         category: resource.category,
@@ -128,7 +127,7 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
       });
       if (error) throw error;
     } else if (type === "scholarship") {
-      const scholarship = draft as Record<string, unknown>;
+      const scholarship = draft as Record<string, string | null>;
       const { error } = await context.supabase.from("scholarships").insert({
         name: scholarship.name,
         institution: scholarship.institution,
@@ -141,7 +140,7 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
       });
       if (error) throw error;
     } else if (type === "forum_post") {
-      const post = draft as Record<string, unknown>;
+      const post = draft as Record<string, string>;
       const { error } = await context.supabase.from("forum_posts").insert({
         user_id: context.userId,
         title: post.title,
