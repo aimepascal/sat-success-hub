@@ -123,24 +123,43 @@ export const generateContent = createServerFn({ method: "POST" })
       { role: "user" as const, content: data.prompt },
     ];
 
-    const schema = getZodSchema(data.type);
-    const result = streamText({
+    const commonOptions = {
       model: lovable.responses("openai/gpt-6-astra"),
       messages,
-      output: Output.object({ schema }),
       providerOptions: {
         openai: {
           store: false,
         },
       },
-    });
+    };
 
     let output: unknown;
     try {
-      output = await result.output;
+      if (data.type === "resource") {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: resourceSchema }),
+        });
+        output = await result.output;
+      } else if (data.type === "scholarship") {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: scholarshipSchema }),
+        });
+        output = await result.output;
+      } else {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: forumPostSchema }),
+        });
+        output = await result.output;
+      }
     } catch (error) {
       if (NoObjectGeneratedError.isInstance(error)) {
         const text = error.text;
+        if (!text) {
+          throw new Error("AI returned empty content");
+        }
         try {
           output = JSON.parse(text);
         } catch {
@@ -156,7 +175,7 @@ export const generateContent = createServerFn({ method: "POST" })
     return {
       draft,
       assistantMessage: { role: "assistant" as const, content: JSON.stringify(output) },
-      runId: runIdFetch.getRunId(),
+      runId: runIdFetch.getRunId() ?? null,
     };
   });
 
@@ -212,17 +231,6 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
-
-function getZodSchema(type: ContentType) {
-  switch (type) {
-    case "resource":
-      return resourceSchema;
-    case "scholarship":
-      return scholarshipSchema;
-    case "forum_post":
-      return forumPostSchema;
-  }
-}
 
 function parseDraft(type: ContentType, raw: Record<string, unknown>): GeneratedDraft {
   switch (type) {
