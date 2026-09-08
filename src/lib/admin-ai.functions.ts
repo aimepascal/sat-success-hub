@@ -1,6 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
+import { streamText, Output, NoObjectGeneratedError } from "ai";
+import { createOpenAI } from "@ai-sdk/openai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  createLovableAiGatewayRunIdFetch,
+  getLovableAiGatewayRunId,
+} from "@/lib/ai-gateway.server";
 
 const contentTypeSchema = z.union([
   z.literal("resource"),
@@ -54,6 +61,31 @@ export type ForumPostDraft = {
 
 export type GeneratedDraft = ResourceDraft | ScholarshipDraft | ForumPostDraft;
 
+const resourceSchema = z.object({
+  title: z.string(),
+  category: z.string(),
+  section: z.enum(["Math", "Reading", "Writing"]),
+  summary: z.string(),
+  content: z.string(),
+});
+
+const scholarshipSchema = z.object({
+  name: z.string(),
+  institution: z.string(),
+  country: z.string(),
+  scholarship_type: z.string(),
+  amount: z.string().nullable(),
+  deadline: z.string(),
+  description: z.string(),
+  apply_url: z.string(),
+});
+
+const forumPostSchema = z.object({
+  title: z.string(),
+  body: z.string(),
+  topic: z.enum(["General", "Math", "Reading", "Writing", "Scholarships", "Strategy"]),
+});
+
 export const generateContent = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => generateInputSchema.parse(data))
@@ -71,62 +103,79 @@ export const generateContent = createServerFn({ method: "POST" })
       throw new Error("AI gateway key is not configured");
     }
 
-    const systemPrompt = buildSystemPrompt(data.type);
+    const request = getRequest();
+    const initialRunId = getLovableAiGatewayRunId(request);
+    const runIdFetch = createLovableAiGatewayRunIdFetch(initialRunId);
+
+    const lovable = createOpenAI({
+      baseURL: "https://ai.gateway.lovable.dev/v1",
+      apiKey,
+      headers: {
+        "Lovable-API-Key": apiKey,
+        "X-Lovable-AIG-SDK": "vercel-ai-sdk",
+      },
+      fetch: runIdFetch.fetch,
+    });
+
     const messages = [
-      { role: "system" as const, content: systemPrompt },
+      { role: "system" as const, content: buildSystemPrompt(data.type) },
       ...data.history,
       { role: "user" as const, content: data.prompt },
     ];
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": apiKey,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
-      body: JSON.stringify({
-        model: "openai/gpt-5.6-sol",
-        messages,
-        response_format: {
-          type: "json_schema",
-          json_schema: {
-            name: `${data.type}_draft`,
-            strict: true,
-            schema: getJsonSchema(data.type),
-          },
+    const commonOptions = {
+      model: lovable.responses("openai/gpt-6-astra"),
+      messages,
+      providerOptions: {
+        openai: {
+          store: false,
         },
-        stream: false,
-      }),
-    });
-
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`AI gateway error: ${res.status} ${text.slice(0, 200)}`);
-    }
-
-    const json = (await res.json()) as {
-      choices?: [{ message?: { content?: string } }];
+      },
     };
-    const runId = res.headers.get("X-Lovable-AIG-Run-ID");
-    const assistantContent = json.choices?.[0]?.message?.content;
-    if (!assistantContent) {
-      throw new Error("AI returned empty content");
-    }
 
-    let parsed: Record<string, unknown>;
+    let output: unknown;
     try {
-      parsed = JSON.parse(assistantContent) as Record<string, unknown>;
-    } catch {
-      throw new Error("AI returned invalid JSON");
+      if (data.type === "resource") {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: resourceSchema }),
+        });
+        output = await result.output;
+      } else if (data.type === "scholarship") {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: scholarshipSchema }),
+        });
+        output = await result.output;
+      } else {
+        const result = streamText({
+          ...commonOptions,
+          output: Output.object({ schema: forumPostSchema }),
+        });
+        output = await result.output;
+      }
+    } catch (error) {
+      if (NoObjectGeneratedError.isInstance(error)) {
+        const text = error.text;
+        if (!text) {
+          throw new Error("AI returned empty content");
+        }
+        try {
+          output = JSON.parse(text);
+        } catch {
+          throw new Error("AI returned invalid JSON: " + text.slice(0, 200));
+        }
+      } else {
+        throw error;
+      }
     }
 
-    const draft = parseDraft(data.type, parsed);
+    const draft = parseDraft(data.type, output as Record<string, unknown>);
 
     return {
       draft,
-      assistantMessage: { role: "assistant" as const, content: assistantContent },
-      runId,
+      assistantMessage: { role: "assistant" as const, content: JSON.stringify(output) },
+      runId: runIdFetch.getRunId() ?? null,
     };
   });
 
@@ -186,94 +235,21 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
 function parseDraft(type: ContentType, raw: Record<string, unknown>): GeneratedDraft {
   switch (type) {
     case "resource":
-      return {
-        title: getString(raw, "title"),
-        category: getString(raw, "category"),
-        section: getString(raw, "section"),
-        summary: getString(raw, "summary"),
-        content: getString(raw, "content"),
-      };
+      return resourceSchema.parse(raw);
     case "scholarship":
-      return {
-        name: getString(raw, "name"),
-        institution: getString(raw, "institution"),
-        country: getString(raw, "country"),
-        scholarship_type: getString(raw, "scholarship_type"),
-        amount: raw.amount === null ? null : getString(raw, "amount"),
-        deadline: getString(raw, "deadline"),
-        description: getString(raw, "description"),
-        apply_url: getString(raw, "apply_url"),
-      };
+      return scholarshipSchema.parse(raw);
     case "forum_post":
-      return {
-        title: getString(raw, "title"),
-        body: getString(raw, "body"),
-        topic: getString(raw, "topic"),
-      };
+      return forumPostSchema.parse(raw);
   }
-}
-
-function getString(raw: Record<string, unknown>, key: string): string {
-  const value = raw[key];
-  if (typeof value !== "string" || value.length === 0) {
-    throw new Error(`Generated draft is missing required field: ${key}`);
-  }
-  return value;
 }
 
 function buildSystemPrompt(type: ContentType): string {
-  const base = "Return ONLY valid JSON matching the provided schema. Do not include markdown code fences or explanatory text outside the JSON.";
   switch (type) {
     case "resource":
-      return `${base} You are an expert SAT tutor drafting a cheat code for the SAT Hub. Given a topic, produce a concise, student-friendly SAT shortcut. The content should be practical, include a clear strategy, and use markdown formatting where helpful. section must be one of: Math, Reading, Writing.`;
+      return "You are an expert SAT tutor drafting a cheat code for the SAT Hub. Given a topic, produce a concise, student-friendly SAT shortcut. The content should be practical, include a clear strategy, and use markdown formatting where helpful.";
     case "scholarship":
-      return `${base} You are a scholarship research assistant. Given details about a scholarship opportunity, produce a structured entry. The deadline must be in YYYY-MM-DD format. The apply_url must be a valid URL. If the amount is unknown, set it to null.`;
+      return "You are a scholarship research assistant. Given details about a scholarship opportunity, produce a structured entry. The deadline must be in YYYY-MM-DD format. The apply_url must be a valid URL.";
     case "forum_post":
-      return `${base} You are a student mentor drafting a forum post for the SAT Hub peer forum. Given a question or topic, produce a clear, helpful post that other students can learn from. topic must be one of: General, Math, Reading, Writing, Scholarships, Strategy.`;
-  }
-}
-
-function getJsonSchema(type: ContentType): Record<string, unknown> {
-  switch (type) {
-    case "resource":
-      return {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          category: { type: "string" },
-          section: { type: "string", enum: ["Math", "Reading", "Writing"] },
-          summary: { type: "string" },
-          content: { type: "string" },
-        },
-        required: ["title", "category", "section", "summary", "content"],
-        additionalProperties: false,
-      };
-    case "scholarship":
-      return {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          institution: { type: "string" },
-          country: { type: "string" },
-          scholarship_type: { type: "string" },
-          amount: { type: ["string", "null"] },
-          deadline: { type: "string" },
-          description: { type: "string" },
-          apply_url: { type: "string" },
-        },
-        required: ["name", "institution", "country", "scholarship_type", "amount", "deadline", "description", "apply_url"],
-        additionalProperties: false,
-      };
-    case "forum_post":
-      return {
-        type: "object",
-        properties: {
-          title: { type: "string" },
-          body: { type: "string" },
-          topic: { type: "string", enum: ["General", "Math", "Reading", "Writing", "Scholarships", "Strategy"] },
-        },
-        required: ["title", "body", "topic"],
-        additionalProperties: false,
-      };
+      return "You are a student mentor drafting a forum post for the SAT Hub peer forum. Given a question or topic, produce a clear, helpful post that other students can learn from.";
   }
 }
