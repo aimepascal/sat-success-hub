@@ -117,8 +117,8 @@ export const generateContent = createServerFn({ method: "POST" })
       fetch: runIdFetch.fetch,
     });
 
+    const instructions = buildSystemPrompt(data.type);
     const messages = [
-      { role: "system" as const, content: buildSystemPrompt(data.type) },
       ...data.history,
       { role: "user" as const, content: data.prompt },
     ];
@@ -126,6 +126,7 @@ export const generateContent = createServerFn({ method: "POST" })
     const commonOptions = {
       model: lovable.responses("openai/gpt-6-astra"),
       messages,
+      instructions,
       providerOptions: {
         openai: {
           store: false,
