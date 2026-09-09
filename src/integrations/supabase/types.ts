@@ -54,6 +54,10 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           image_url: string | null
           title: string
@@ -63,6 +67,10 @@ export type Database = {
         Insert: {
           body: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           image_url?: string | null
           title: string
@@ -72,6 +80,10 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           image_url?: string | null
           title?: string
@@ -92,6 +104,10 @@ export type Database = {
         Row: {
           body: string
           created_at: string
+          file_name: string | null
+          file_size: number | null
+          file_type: string | null
+          file_url: string | null
           id: string
           image_url: string | null
           post_id: string
@@ -100,6 +116,10 @@ export type Database = {
         Insert: {
           body: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           image_url?: string | null
           post_id: string
@@ -108,6 +128,10 @@ export type Database = {
         Update: {
           body?: string
           created_at?: string
+          file_name?: string | null
+          file_size?: number | null
+          file_type?: string | null
+          file_url?: string | null
           id?: string
           image_url?: string | null
           post_id?: string
