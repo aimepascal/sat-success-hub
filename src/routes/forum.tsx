@@ -1,14 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Plus, X, ImagePlus, Loader2, Trash2 } from "lucide-react";
+import { MessageSquare, Plus, X, Trash2, Paperclip, ImageIcon, Search, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { SignInGate } from "@/components/SignInGate";
+import { AttachmentPicker } from "@/components/AttachmentPicker";
+import type { FileAttachment } from "@/lib/forum-attachments";
 
 export const Route = createFileRoute("/forum")({
   head: () => ({
