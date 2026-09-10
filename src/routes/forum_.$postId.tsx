@@ -12,7 +12,7 @@ import { AttachmentPicker } from "@/components/AttachmentPicker";
 import { AttachmentCard } from "@/components/AttachmentCard";
 import { downloadFromUrl, type FileAttachment } from "@/lib/forum-attachments";
 
-export const Route = createFileRoute("/forum/$postId")({
+export const Route = createFileRoute("/forum_/$postId")({
   loader: async ({ params }) => {
     const { data: post } = await supabase
       .from("forum_posts")

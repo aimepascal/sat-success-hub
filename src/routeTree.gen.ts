@@ -17,7 +17,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ForumPostIdRouteImport } from './routes/forum.$postId'
+import { Route as ForumPostIdRouteImport } from './routes/forum_.$postId'
 import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
@@ -61,9 +61,9 @@ const IndexRoute = IndexRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const ForumPostIdRoute = ForumPostIdRouteImport.update({
-  id: '/$postId',
-  path: '/$postId',
-  getParentRoute: () => ForumRoute,
+  id: '/forum_/$postId',
+  path: '/forum/$postId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAuditLogsRoute = AuthenticatedAuditLogsRouteImport.update({
   id: '/audit-logs',
@@ -80,7 +80,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/forum': typeof ForumRouteWithChildren
+  '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
@@ -92,7 +92,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/forum': typeof ForumRouteWithChildren
+  '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
@@ -106,13 +106,13 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
-  '/forum': typeof ForumRouteWithChildren
+  '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
   '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit-logs': typeof AuthenticatedAuditLogsRoute
-  '/forum/$postId': typeof ForumPostIdRoute
+  '/forum_/$postId': typeof ForumPostIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -151,7 +151,7 @@ export interface FileRouteTypes {
     | '/vault'
     | '/_authenticated/admin'
     | '/_authenticated/audit-logs'
-    | '/forum/$postId'
+    | '/forum_/$postId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -159,10 +159,11 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
-  ForumRoute: typeof ForumRouteWithChildren
+  ForumRoute: typeof ForumRoute
   ImpactRoute: typeof ImpactRoute
   ScholarshipsRoute: typeof ScholarshipsRoute
   VaultRoute: typeof VaultRoute
+  ForumPostIdRoute: typeof ForumPostIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -223,12 +224,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/forum/$postId': {
-      id: '/forum/$postId'
-      path: '/$postId'
+    '/forum_/$postId': {
+      id: '/forum_/$postId'
+      path: '/forum/$postId'
       fullPath: '/forum/$postId'
       preLoaderRoute: typeof ForumPostIdRouteImport
-      parentRoute: typeof ForumRoute
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/audit-logs': {
       id: '/_authenticated/audit-logs'
@@ -260,25 +261,16 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
 const AuthenticatedRouteRouteWithChildren =
   AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
 
-interface ForumRouteChildren {
-  ForumPostIdRoute: typeof ForumPostIdRoute
-}
-
-const ForumRouteChildren: ForumRouteChildren = {
-  ForumPostIdRoute: ForumPostIdRoute,
-}
-
-const ForumRouteWithChildren = ForumRoute._addFileChildren(ForumRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
-  ForumRoute: ForumRouteWithChildren,
+  ForumRoute: ForumRoute,
   ImpactRoute: ImpactRoute,
   ScholarshipsRoute: ScholarshipsRoute,
   VaultRoute: VaultRoute,
+  ForumPostIdRoute: ForumPostIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
