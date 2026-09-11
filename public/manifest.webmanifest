@@ -1,7 +1,7 @@
 {
-  "name": "SAT Hub — Simplified SAT & Scholarships",
+  "name": "SAT Hub — Simplified SAT Prep",
   "short_name": "SAT Hub",
-  "description": "Simplified SAT prep, a peer community, and international scholarships in one place.",
+  "description": "Simplified SAT prep and a peer community in one place.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

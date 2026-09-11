@@ -27,7 +27,6 @@ export function SiteHeader() {
     { to: "/dashboard", label: userId ? "Dashboard" : "Explore" },
     { to: "/vault", label: "Vault" },
     { to: "/forum", label: "Forum" },
-    { to: "/scholarships", label: "Scholarships" },
     { to: "/impact", label: "Impact" },
     ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
   ];

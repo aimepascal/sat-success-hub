@@ -20,7 +20,7 @@ export const Route = createFileRoute("/auth")({
       { title: "Sign in — SAT Hub" },
       { name: "description", content: "Join the SAT Hub community. Free forever for students." },
       { property: "og:title", content: "Join SAT Hub" },
-      { property: "og:description", content: "Sign in or create a free account to unlock SAT cheat codes, peer threads, and scholarships." },
+      { property: "og:description", content: "Sign in or create a free account to unlock SAT cheat codes and peer threads." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/auth" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/auth" }],

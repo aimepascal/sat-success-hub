@@ -41,18 +41,6 @@ export type ForumReply = {
   profiles?: { display_name: string; avatar_url: string | null } | null;
 };
 
-export type Scholarship = {
-  id: string;
-  name: string;
-  institution: string;
-  country: string;
-  scholarship_type: string;
-  amount: string | null;
-  deadline: string;
-  description: string;
-  apply_url: string;
-};
-
 export type Profile = {
   id: string;
   display_name: string;
