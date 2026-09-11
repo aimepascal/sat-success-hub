@@ -1,16 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Globe, ArrowRight, Zap, Sparkles } from "lucide-react";
+import { MessageSquare, ArrowRight, Zap, Sparkles } from "lucide-react";
 import { useAuthUser } from "@/hooks/use-auth-user";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "Explore SAT Hub — Dashboard" },
-      { name: "description", content: "Jump into the Cheat Code Vault, the Peer Forum, the Scholarship Pipeline, or see live community impact. Free to browse, no account required." },
+      { name: "description", content: "Jump into the Cheat Code Vault, the Peer Forum, or see live community impact. Free to browse, no account required." },
       { property: "og:title", content: "Explore the SAT Hub Dashboard" },
-      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes, peer threads, and scholarships. Browse freely." },
+      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes and peer threads. Browse freely." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/dashboard" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/dashboard" }],
@@ -44,7 +44,6 @@ function Dashboard() {
   const cards = [
     { to: "/vault" as const, icon: Zap, title: "Cheat Code Vault", desc: "Search shortcuts by topic." },
     { to: "/forum" as const, icon: MessageSquare, title: "Peer Forum", desc: "Ask. Answer. Level up." },
-    { to: "/scholarships" as const, icon: Globe, title: "Scholarships", desc: "Filter live opportunities." },
   ];
 
   return (
@@ -66,13 +65,13 @@ function Dashboard() {
               Browse everything. No account needed.
             </h1>
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Read the vault, follow live forum threads, scan scholarships. Create a free account only when you want to post, reply, or save your progress.
+              Read the vault and follow live forum threads. Create a free account only when you want to post, reply, or save your progress.
             </p>
           </>
         )}
       </div>
 
-      <div className="mt-8 grid gap-4 sm:grid-cols-3">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {cards.map((c) => (
           <Link key={c.to} to={c.to} className="group rounded-2xl border border-border bg-card p-6 shadow-card transition hover:border-primary/50">
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">

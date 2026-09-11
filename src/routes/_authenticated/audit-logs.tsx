@@ -24,7 +24,7 @@ type AuditLog = {
 };
 
 const ACTIONS = ["ALL", "INSERT", "UPDATE", "DELETE"] as const;
-const TABLES = ["ALL", "user_roles", "scholarships", "resources"] as const;
+const TABLES = ["ALL", "user_roles", "resources"] as const;
 
 function AuditLogsPage() {
   const { user } = Route.useRouteContext();
@@ -105,7 +105,7 @@ function AuditLogsPage() {
         <div className="max-w-2xl">
           <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Audit Logs</h1>
           <p className="mt-2 text-muted-foreground">
-            Security events for role changes, scholarship edits, and resource changes.
+            Security events for role changes and resource changes.
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>

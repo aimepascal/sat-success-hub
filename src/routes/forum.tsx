@@ -32,7 +32,7 @@ export const Route = createFileRoute("/forum")({
           "@type": "CollectionPage",
           name: "SAT Hub Peer Forum",
           url: "https://sat-success-hub.lovable.app/forum",
-          description: "Crowdsourced peer-to-peer breakdowns of tough SAT questions across Math, Reading, Writing, scholarships, and strategy.",
+          description: "Crowdsourced peer-to-peer breakdowns of tough SAT questions across Math, Reading, Writing, and strategy.",
           inLanguage: "en",
           isPartOf: { "@id": "https://sat-success-hub.lovable.app/#website" },
         }),
@@ -42,7 +42,7 @@ export const Route = createFileRoute("/forum")({
   component: ForumPage,
 });
 
-const TOPICS = ["General", "Math", "Reading", "Writing", "Scholarships", "Strategy"];
+const TOPICS = ["General", "Math", "Reading", "Writing", "Strategy"];
 const FILTERS = ["All", ...TOPICS];
 
 function initials(name: string) {

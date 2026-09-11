@@ -94,7 +94,7 @@ function ImpactPage() {
           Built to democratize access.
         </h2>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          SAT Hub exists for the students who can't pay $2,000 for a prep course. The community is the curriculum. The shortcuts are the secret weapon. Scholarships are the destination.
+          SAT Hub exists for the students who can't pay $2,000 for a prep course. The community is the curriculum. The shortcuts are the secret weapon.
         </p>
       </div>
     </div>

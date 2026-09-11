@@ -10,7 +10,6 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VaultRouteImport } from './routes/vault'
-import { Route as ScholarshipsRouteImport } from './routes/scholarships'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -24,11 +23,6 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 const VaultRoute = VaultRouteImport.update({
   id: '/vault',
   path: '/vault',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ScholarshipsRoute = ScholarshipsRouteImport.update({
-  id: '/scholarships',
-  path: '/scholarships',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ImpactRoute = ImpactRouteImport.update({
@@ -82,7 +76,6 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
-  '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -94,7 +87,6 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
-  '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -108,7 +100,6 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
-  '/scholarships': typeof ScholarshipsRoute
   '/vault': typeof VaultRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -122,7 +113,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
-    | '/scholarships'
     | '/vault'
     | '/admin'
     | '/audit-logs'
@@ -134,7 +124,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
-    | '/scholarships'
     | '/vault'
     | '/admin'
     | '/audit-logs'
@@ -147,7 +136,6 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
-    | '/scholarships'
     | '/vault'
     | '/_authenticated/admin'
     | '/_authenticated/audit-logs'
@@ -161,7 +149,6 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForumRoute: typeof ForumRoute
   ImpactRoute: typeof ImpactRoute
-  ScholarshipsRoute: typeof ScholarshipsRoute
   VaultRoute: typeof VaultRoute
   ForumPostIdRoute: typeof ForumPostIdRoute
 }
@@ -173,13 +160,6 @@ declare module '@tanstack/react-router' {
       path: '/vault'
       fullPath: '/vault'
       preLoaderRoute: typeof VaultRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/scholarships': {
-      id: '/scholarships'
-      path: '/scholarships'
-      fullPath: '/scholarships'
-      preLoaderRoute: typeof ScholarshipsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/impact': {
@@ -268,7 +248,6 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForumRoute: ForumRoute,
   ImpactRoute: ImpactRoute,
-  ScholarshipsRoute: ScholarshipsRoute,
   VaultRoute: VaultRoute,
   ForumPostIdRoute: ForumPostIdRoute,
 }
