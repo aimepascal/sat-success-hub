@@ -153,7 +153,7 @@ function Hero() {
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-[var(--ink)]/45 via-transparent to-[var(--lagoon)]/20" />
           </div>
           <div className="sticky-note absolute -bottom-6 -left-4 hidden max-w-[200px] rounded-md p-3 text-xs font-medium sm:block">
-            "Got 1480 using just the Vault. Wild." — Amara, Lagos
+            "Got 1400 using just the Vault. Wild." — Enzo, Lagos
           </div>
         </div>
       </div>
