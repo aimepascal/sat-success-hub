@@ -381,7 +381,7 @@ const features = [
 ];
 
 const voices = [
-  { name: "Amara", where: "Lagos · 1480", quote: "Got 1480 using just the Vault. The grammar shortcuts alone moved me 60 points." },
+  { name: "Amara", where: "L · 1400", quote: "Got 1480 using just the Vault. The grammar shortcuts alone moved me 60 points." },
   { name: "Jonas", where: "Kigali · 1520", quote: "The forum is where it clicked. Someone broke down a question I'd stared at for an hour." },
   { name: "Leila", where: "Cairo · scholarship", quote: "Found a full ride in Australia through the scholarship feed. Wouldn't have looked otherwise." },
 ];
