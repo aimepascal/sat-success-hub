@@ -64,7 +64,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "SAT Hub" },
       { name: "description", content: "Simplified SAT prep and a peer community for students." },
-...
       { property: "og:description", content: "Simplified SAT prep and a peer community for students." },
       { name: "twitter:description", content: "Simplified SAT prep and a peer community for students." },
       { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/742e5331-2411-4fea-bcc2-f578db57a44a" },
