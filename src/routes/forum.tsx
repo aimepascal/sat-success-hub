@@ -189,7 +189,7 @@ function ForumPage() {
       <ul className="mt-6 grid gap-5 lg:grid-cols-2">
         {visible.map((p) => {
           const replyCount = (p.forum_replies as { count: number }[] | null)?.[0]?.count ?? 0;
-          const author = p.profiles?.display_name ?? "Scholar";
+          const author = p.profiles?.display_name ?? "Student";
           return (
             <li key={p.id} className="group relative">
               {userId && p.user_id === userId && (

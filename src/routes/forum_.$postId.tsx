@@ -190,7 +190,7 @@ function ThreadPage() {
 
   if (!post) return <div className="mx-auto max-w-3xl px-4 py-10 text-sm text-muted-foreground">Loading…</div>;
 
-  const author = post.profiles?.display_name ?? "Scholar";
+  const author = post.profiles?.display_name ?? "Student";
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
@@ -274,7 +274,7 @@ function ThreadPage() {
 
         <ul className="mt-5 space-y-4">
           {replies.map((r) => {
-            const rAuthor = r.profiles?.display_name ?? "Scholar";
+            const rAuthor = r.profiles?.display_name ?? "Student";
             return (
               <li key={r.id} className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6">
                 <div className="flex items-start justify-between gap-3">

@@ -7,7 +7,7 @@ export const Route = createFileRoute("/impact")({
   head: () => ({
     meta: [
       { title: "Our Impact — SAT Hub" },
-      { name: "description", content: "Live metrics showing the real-world footprint of the SAT Hub community: active scholars, peer solutions shared, and average score improvement." },
+      { name: "description", content: "Live metrics showing the real-world footprint of the SAT Hub community: active students, peer solutions shared, and average score improvement." },
       { property: "og:title", content: "SAT Hub — Live Community Impact" },
       { property: "og:description", content: "Real numbers. Real students. See what the SAT Hub community has built together." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/impact" },
@@ -42,7 +42,7 @@ function ImpactPage() {
   const metrics = [
     {
       icon: Users,
-      label: "Active Global Scholars",
+      label: "Active Students",
       value: data?.scholars ?? 0,
       sub: "Registered students worldwide",
       accent: "text-primary",

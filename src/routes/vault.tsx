@@ -216,7 +216,7 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
           <ul className="mt-5 space-y-4">
             {comments.map((c) => (
               <li key={c.id} className="rounded-lg border border-border bg-surface p-3">
-                <p className="text-xs font-medium text-foreground">{c.profiles?.display_name ?? "Scholar"}</p>
+                <p className="text-xs font-medium text-foreground">{c.profiles?.display_name ?? "Student"}</p>
                 <p className="mt-1 text-sm text-muted-foreground">{c.body}</p>
               </li>
             ))}

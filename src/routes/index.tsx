@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
               "@id": "https://sat-success-hub.lovable.app/#organization",
               name: "SAT Hub",
               url: "https://sat-success-hub.lovable.app/",
-              description: "Simplified SAT prep and a peer community for global scholars.",
+              description: "Simplified SAT prep and a peer community for students.",
             },
             {
               "@type": "WebSite",
@@ -377,5 +377,5 @@ const features = [
 const voices = [
   { name: "Enzo", where: "Kigali · 1400", quote: "Got 1480 using just the Vault. The grammar shortcuts alone moved me 60 points." },
   { name: "Jonas", where: "Kigali · 1520", quote: "The forum is where it clicked. Someone broke down a question I'd stared at for an hour." },
-  { name: "Leila", where: "USA · 1490", quote: "The breakdowns other students wrote made the Reading section finally make sense." },
+  { name: "Leila", where: "Kigali · 1490", quote: "The breakdowns other students wrote made the Reading section finally make sense." },
 ];
