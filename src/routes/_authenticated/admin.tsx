@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { Pencil, Trash2, Plus, ShieldAlert, Sparkles, Send, Loader2 } from "lucide-react";
-import type { Resource, Scholarship } from "@/lib/db-types";
-import type { ContentType, ChatMessage, GeneratedDraft, ResourceDraft, ScholarshipDraft, ForumPostDraft } from "@/lib/admin-ai.functions";
+import type { Resource } from "@/lib/db-types";
+import type { ContentType, ChatMessage, GeneratedDraft, ResourceDraft, ForumPostDraft } from "@/lib/admin-ai.functions";
 import { generateContent, publishGeneratedContent } from "@/lib/admin-ai.functions";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
 });
 
-type Tab = "resources" | "scholarships" | "users" | "ai";
+type Tab = "resources" | "users" | "ai";
 
 function AdminPage() {
   const { user } = Route.useRouteContext();
@@ -45,24 +45,23 @@ function AdminPage() {
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="max-w-2xl">
         <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Admin Panel</h1>
-        <p className="mt-2 text-muted-foreground">Manage the Cheat Code Vault and Scholarship Pipeline.</p>
+        <p className="mt-2 text-muted-foreground">Manage the Cheat Code Vault and community content.</p>
       </div>
 
       <div className="mt-8 flex gap-1 rounded-lg border border-border bg-surface p-1 w-fit flex-wrap">
-        {(["resources", "scholarships", "users", "ai"] as Tab[]).map((t) => (
+        {(["resources", "users", "ai"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`rounded-md px-4 py-1.5 text-sm font-medium capitalize transition ${tab === t ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
           >
-            {t === "resources" ? "Cheat Codes" : t === "scholarships" ? "Scholarships" : t === "users" ? "Users & Roles" : "AI Copilot"}
+            {t === "resources" ? "Cheat Codes" : t === "users" ? "Users & Roles" : "AI Copilot"}
           </button>
         ))}
       </div>
 
       <div className="mt-6">
         {tab === "resources" && <ResourcesAdmin authorId={user.id} />}
-        {tab === "scholarships" && <ScholarshipsAdmin />}
         {tab === "users" && <UsersAudit />}
         {tab === "ai" && <AiCopilot authorId={user.id} />}
       </div>
@@ -218,187 +217,10 @@ function ResourcesAdmin({ authorId }: { authorId: string }) {
   );
 }
 
-/* -------------------- SCHOLARSHIPS -------------------- */
-
-const EMPTY_SCHOLARSHIP = {
-  name: "",
-  institution: "",
-  country: "US",
-  scholarship_type: "Merit",
-  amount: "",
-  deadline: new Date().toISOString().slice(0, 10),
-  description: "",
-  apply_url: "",
-};
-
-function ScholarshipsAdmin() {
-  const qc = useQueryClient();
-  const [editing, setEditing] = useState<Partial<Scholarship> | null>(null);
-
-  const { data: items = [] } = useQuery({
-    queryKey: ["admin-scholarships"],
-    queryFn: async () => {
-      const { data } = await supabase.from("scholarships").select("*").order("deadline", { ascending: true });
-      return (data ?? []) as Scholarship[];
-    },
-  });
-
-  const save = useMutation({
-    mutationFn: async (s: Partial<Scholarship>) => {
-      const payload = {
-        name: s.name!,
-        institution: s.institution!,
-        country: s.country!,
-        scholarship_type: s.scholarship_type!,
-        amount: s.amount ?? null,
-        deadline: s.deadline!,
-        description: s.description!,
-        apply_url: s.apply_url!,
-      };
-      if (s.id) {
-        const { error } = await supabase.from("scholarships").update(payload).eq("id", s.id);
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from("scholarships").insert(payload);
-        if (error) throw error;
-      }
-    },
-    onSuccess: () => {
-      toast.success("Saved");
-      setEditing(null);
-      qc.invalidateQueries({ queryKey: ["admin-scholarships"] });
-      qc.invalidateQueries({ queryKey: ["scholarships"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  const remove = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from("scholarships").delete().eq("id", id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast.success("Deleted");
-      qc.invalidateQueries({ queryKey: ["admin-scholarships"] });
-      qc.invalidateQueries({ queryKey: ["scholarships"] });
-    },
-    onError: (e: Error) => toast.error(e.message),
-  });
-
-  return (
-    <div>
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{items.length} scholarships</p>
-        <Button size="sm" onClick={() => setEditing({ ...EMPTY_SCHOLARSHIP })}>
-          <Plus className="mr-1 h-4 w-4" /> New scholarship
-        </Button>
-      </div>
-
-      <div className="overflow-hidden rounded-2xl border border-border bg-card">
-        <table className="w-full text-sm">
-          <thead className="bg-surface text-left text-xs uppercase tracking-wider text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3">Name</th>
-              <th className="px-4 py-3">Country</th>
-              <th className="px-4 py-3">Type</th>
-              <th className="px-4 py-3">Deadline</th>
-              <th className="px-4 py-3 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {items.map((s) => (
-              <tr key={s.id}>
-                <td className="px-4 py-3 font-medium">{s.name}</td>
-                <td className="px-4 py-3 text-muted-foreground">{s.country}</td>
-                <td className="px-4 py-3 text-muted-foreground">{s.scholarship_type}</td>
-                <td className="px-4 py-3 text-muted-foreground">{new Date(s.deadline).toLocaleDateString()}</td>
-                <td className="px-4 py-3 text-right">
-                  <Button size="sm" variant="ghost" onClick={() => setEditing(s)}>
-                    <Pencil className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => confirm(`Delete "${s.name}"?`) && remove.mutate(s.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {editing && (
-        <Modal onClose={() => setEditing(null)} title={editing.id ? "Edit scholarship" : "New scholarship"}>
-          <div className="space-y-3">
-            <Field label="Name">
-              <Input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} />
-            </Field>
-            <Field label="Institution">
-              <Input value={editing.institution ?? ""} onChange={(e) => setEditing({ ...editing, institution: e.target.value })} />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Country">
-                <select
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={editing.country ?? "US"}
-                  onChange={(e) => setEditing({ ...editing, country: e.target.value })}
-                >
-                  <option>US</option>
-                  <option>UK</option>
-                  <option>Canada</option>
-                  <option>Australia</option>
-                </select>
-              </Field>
-              <Field label="Type">
-                <select
-                  className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  value={editing.scholarship_type ?? "Merit"}
-                  onChange={(e) => setEditing({ ...editing, scholarship_type: e.target.value })}
-                >
-                  <option>Full Ride</option>
-                  <option>Merit</option>
-                  <option>Need-Based</option>
-                </select>
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Amount">
-                <Input value={editing.amount ?? ""} onChange={(e) => setEditing({ ...editing, amount: e.target.value })} placeholder="$50,000/yr" />
-              </Field>
-              <Field label="Deadline">
-                <Input type="date" value={editing.deadline ?? ""} onChange={(e) => setEditing({ ...editing, deadline: e.target.value })} />
-              </Field>
-            </div>
-            <Field label="Apply URL">
-              <Input value={editing.apply_url ?? ""} onChange={(e) => setEditing({ ...editing, apply_url: e.target.value })} placeholder="https://..." />
-            </Field>
-            <Field label="Description">
-              <Textarea rows={4} value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} />
-            </Field>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="ghost" onClick={() => setEditing(null)}>Cancel</Button>
-              <Button
-                onClick={() => save.mutate(editing)}
-                disabled={save.isPending || !editing.name || !editing.institution || !editing.deadline || !editing.description || !editing.apply_url}
-              >
-                Save
-              </Button>
-            </div>
-          </div>
-        </Modal>
-      )}
-    </div>
-  );
-}
-
 /* -------------------- AI COPILOT -------------------- */
 
 const PLACEHOLDERS: Record<ContentType, string> = {
   resource: "e.g., A quick trick for solving systems of linear equations without full algebra",
-  scholarship: "e.g., Full-ride scholarship for African students applying to US universities, deadline December 1",
   forum_post: "e.g., How do I stop running out of time on the Reading section?",
 };
 
@@ -452,9 +274,7 @@ function AiCopilot({ authorId }: { authorId: string }) {
       await publish({ data: { type, draft } });
       toast.success("Published");
       qc.invalidateQueries({ queryKey: ["admin-resources"] });
-      qc.invalidateQueries({ queryKey: ["admin-scholarships"] });
       qc.invalidateQueries({ queryKey: ["resources"] });
-      qc.invalidateQueries({ queryKey: ["scholarships"] });
       qc.invalidateQueries({ queryKey: ["forum-posts"] });
       setDraft(null);
       setHistory([]);
@@ -474,7 +294,7 @@ function AiCopilot({ authorId }: { authorId: string }) {
         </div>
 
         <div className="flex flex-wrap gap-2">
-          {(["resource", "scholarship", "forum_post"] as ContentType[]).map((t) => (
+          {(["resource", "forum_post"] as ContentType[]).map((t) => (
             <button
               key={t}
               onClick={() => { setType(t); setDraft(null); setHistory([]); setPrompt(""); setRefine(""); }}
@@ -534,7 +354,6 @@ function AiCopilot({ authorId }: { authorId: string }) {
         {draft ? (
           <div className="mt-4 space-y-4">
             {type === "resource" && <ResourcePreview draft={draft as ResourceDraft} />}
-            {type === "scholarship" && <ScholarshipPreview draft={draft as ScholarshipDraft} />}
             {type === "forum_post" && <ForumPostPreview draft={draft as ForumPostDraft} />}
           </div>
         ) : (
@@ -557,23 +376,6 @@ function ResourcePreview({ draft }: { draft: ResourceDraft }) {
       <div className="prose prose-sm max-w-none text-sm text-foreground">
         {draft.content.split("\n").map((p: string, i: number) => p ? <p key={i}>{p}</p> : <br key={i} />)}
       </div>
-    </div>
-  );
-}
-
-function ScholarshipPreview({ draft }: { draft: ScholarshipDraft }) {
-  return (
-    <div className="space-y-3">
-      <h4 className="font-display text-xl font-semibold">{draft.name}</h4>
-      <div className="grid gap-2 text-sm">
-        <div><span className="text-muted-foreground">Institution:</span> {draft.institution}</div>
-        <div><span className="text-muted-foreground">Country:</span> {draft.country}</div>
-        <div><span className="text-muted-foreground">Type:</span> {draft.scholarship_type}</div>
-        <div><span className="text-muted-foreground">Amount:</span> {draft.amount ?? "Not specified"}</div>
-        <div><span className="text-muted-foreground">Deadline:</span> {draft.deadline}</div>
-      </div>
-      <p className="text-sm text-muted-foreground">{draft.description}</p>
-      <a href={draft.apply_url} target="_blank" rel="noreferrer" className="inline-block text-sm font-medium text-primary hover:underline">{draft.apply_url}</a>
     </div>
   );
 }

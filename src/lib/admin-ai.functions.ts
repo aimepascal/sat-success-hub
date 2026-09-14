@@ -11,7 +11,6 @@ import {
 
 const contentTypeSchema = z.union([
   z.literal("resource"),
-  z.literal("scholarship"),
   z.literal("forum_post"),
 ]);
 
@@ -42,24 +41,13 @@ export type ResourceDraft = {
   content: string;
 };
 
-export type ScholarshipDraft = {
-  name: string;
-  institution: string;
-  country: string;
-  scholarship_type: string;
-  amount: string | null;
-  deadline: string;
-  description: string;
-  apply_url: string;
-};
-
 export type ForumPostDraft = {
   title: string;
   body: string;
   topic: string;
 };
 
-export type GeneratedDraft = ResourceDraft | ScholarshipDraft | ForumPostDraft;
+export type GeneratedDraft = ResourceDraft | ForumPostDraft;
 
 const resourceSchema = z.object({
   title: z.string(),
@@ -69,21 +57,10 @@ const resourceSchema = z.object({
   content: z.string(),
 });
 
-const scholarshipSchema = z.object({
-  name: z.string(),
-  institution: z.string(),
-  country: z.string(),
-  scholarship_type: z.string(),
-  amount: z.string().nullable(),
-  deadline: z.string(),
-  description: z.string(),
-  apply_url: z.string(),
-});
-
 const forumPostSchema = z.object({
   title: z.string(),
   body: z.string(),
-  topic: z.enum(["General", "Math", "Reading", "Writing", "Scholarships", "Strategy"]),
+  topic: z.enum(["General", "Math", "Reading", "Writing", "Strategy"]),
 });
 
 export const generateContent = createServerFn({ method: "POST" })
@@ -140,12 +117,6 @@ export const generateContent = createServerFn({ method: "POST" })
         const result = streamText({
           ...commonOptions,
           output: Output.object({ schema: resourceSchema }),
-        });
-        output = await result.output;
-      } else if (data.type === "scholarship") {
-        const result = streamText({
-          ...commonOptions,
-          output: Output.object({ schema: scholarshipSchema }),
         });
         output = await result.output;
       } else {
@@ -206,19 +177,6 @@ export const publishGeneratedContent = createServerFn({ method: "POST" })
         author_id: context.userId,
       });
       if (error) throw error;
-    } else if (type === "scholarship") {
-      const d = draft as ScholarshipDraft;
-      const { error } = await context.supabase.from("scholarships").insert({
-        name: d.name,
-        institution: d.institution,
-        country: d.country,
-        scholarship_type: d.scholarship_type,
-        amount: d.amount,
-        deadline: d.deadline,
-        description: d.description,
-        apply_url: d.apply_url,
-      });
-      if (error) throw error;
     } else if (type === "forum_post") {
       const d = draft as ForumPostDraft;
       const { error } = await context.supabase.from("forum_posts").insert({
@@ -237,8 +195,6 @@ function parseDraft(type: ContentType, raw: Record<string, unknown>): GeneratedD
   switch (type) {
     case "resource":
       return resourceSchema.parse(raw);
-    case "scholarship":
-      return scholarshipSchema.parse(raw);
     case "forum_post":
       return forumPostSchema.parse(raw);
   }
@@ -248,8 +204,6 @@ function buildSystemPrompt(type: ContentType): string {
   switch (type) {
     case "resource":
       return "You are an expert SAT tutor drafting a cheat code for the SAT Hub. Given a topic, produce a concise, student-friendly SAT shortcut. The content should be practical, include a clear strategy, and use markdown formatting where helpful.";
-    case "scholarship":
-      return "You are a scholarship research assistant. Given details about a scholarship opportunity, produce a structured entry. The deadline must be in YYYY-MM-DD format. The apply_url must be a valid URL.";
     case "forum_post":
       return "You are a student mentor drafting a forum post for the SAT Hub peer forum. Given a question or topic, produce a clear, helpful post that other students can learn from.";
   }
