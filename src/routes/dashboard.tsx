@@ -53,7 +53,7 @@ function Dashboard() {
           <>
             <p className="text-sm text-muted-foreground">Welcome back,</p>
             <h1 className="mt-1 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-              {profile?.display_name ?? "Scholar"}
+              {profile?.display_name ?? "Student"}
             </h1>
           </>
         ) : (

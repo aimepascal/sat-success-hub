@@ -28,7 +28,7 @@ export const Route = createFileRoute("/")({
               "@id": "https://sat-success-hub.lovable.app/#organization",
               name: "SAT Hub",
               url: "https://sat-success-hub.lovable.app/",
-              description: "Simplified SAT prep and a peer community for global scholars.",
+              description: "Simplified SAT prep and a peer community for students.",
             },
             {
               "@type": "WebSite",
