@@ -1,20 +1,19 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Zap, Globe, TrendingUp, MessageSquare, Quote, Sparkles } from "lucide-react";
+import { ArrowRight, Zap, TrendingUp, MessageSquare, Quote, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import heroImg from "@/assets/hero-students.jpg";
 import studyImg from "@/assets/feature-study.jpg";
 import communityImg from "@/assets/feature-community.jpg";
-import scholarshipsImg from "@/assets/feature-scholarships.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SAT Hub — Cheat Codes, Community & Scholarships" },
-      { name: "description", content: "Ultra-simplified SAT shortcuts, peer-to-peer breakdowns, and a curated pipeline of international scholarships. Built for students who can't afford to waste time." },
-      { property: "og:title", content: "SAT Hub — Cheat Codes, Community & Scholarships" },
-      { property: "og:description", content: "Ultra-simplified SAT shortcuts, peer-to-peer breakdowns, and international scholarships in one place." },
+      { title: "SAT Hub — SAT Cheat Codes & Peer Community" },
+      { name: "description", content: "Ultra-simplified SAT shortcuts and peer-to-peer breakdowns. Built for students who can't afford to waste time." },
+      { property: "og:title", content: "SAT Hub — SAT Cheat Codes & Peer Community" },
+      { property: "og:description", content: "Ultra-simplified SAT shortcuts and peer-to-peer breakdowns in one place." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/" }],
@@ -29,7 +28,7 @@ export const Route = createFileRoute("/")({
               "@id": "https://sat-success-hub.lovable.app/#organization",
               name: "SAT Hub",
               url: "https://sat-success-hub.lovable.app/",
-              description: "Simplified SAT prep, peer community, and international scholarships.",
+              description: "Simplified SAT prep and a peer community for global scholars.",
             },
             {
               "@type": "WebSite",
@@ -52,18 +51,16 @@ function useLiveStats() {
     queryKey: ["live-stats"],
     refetchInterval: 30_000,
     queryFn: async () => {
-      const [students, posts, replies, scholarships, resources] = await Promise.all([
+      const [students, posts, replies, resources] = await Promise.all([
         supabase.from("profiles").select("id", { count: "exact", head: true }),
         supabase.from("forum_posts").select("id", { count: "exact", head: true }),
         supabase.from("forum_replies").select("id", { count: "exact", head: true }),
-        supabase.from("scholarships").select("id", { count: "exact", head: true }),
         supabase.from("resources").select("id", { count: "exact", head: true }),
       ]);
       return {
         students: students.count ?? 0,
         posts: posts.count ?? 0,
         replies: replies.count ?? 0,
-        scholarships: scholarships.count ?? 0,
         resources: resources.count ?? 0,
       };
     },
@@ -75,15 +72,13 @@ function useLiveActivity() {
     queryKey: ["live-activity"],
     refetchInterval: 20_000,
     queryFn: async () => {
-      const [posts, scholarships, resources] = await Promise.all([
+      const [posts, resources] = await Promise.all([
         supabase.from("forum_posts").select("id,title,topic,created_at").order("created_at", { ascending: false }).limit(4),
-        supabase.from("scholarships").select("id,name,country,deadline").order("created_at", { ascending: false }).limit(3),
-        supabase.from("resources").select("id,title,section,created_at").order("created_at", { ascending: false }).limit(3),
+        supabase.from("resources").select("id,title,section,created_at").order("created_at", { ascending: false }).limit(4),
       ]);
-      type Item = { kind: "post" | "scholarship" | "resource"; title: string; meta: string; at: string };
+      type Item = { kind: "post" | "resource"; title: string; meta: string; at: string };
       const items: Item[] = [
         ...(posts.data ?? []).map((p) => ({ kind: "post" as const, title: p.title, meta: `New question · ${p.topic}`, at: p.created_at })),
-        ...(scholarships.data ?? []).map((s) => ({ kind: "scholarship" as const, title: s.name, meta: `Scholarship · ${s.country}`, at: s.deadline })),
         ...(resources.data ?? []).map((r) => ({ kind: "resource" as const, title: r.title, meta: `Resource · ${r.section}`, at: r.created_at })),
       ];
       return items.sort((a, b) => (a.at < b.at ? 1 : -1)).slice(0, 6);
@@ -117,12 +112,12 @@ function Hero() {
             The SAT,{" "}
             <span className="italic underline-sketch">simplified.</span>
             <br />
-            Scholarships,{" "}
+            Scores,{" "}
             <span className="italic text-[var(--lagoon)]">unlocked.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base text-muted-foreground sm:text-lg">
-            No textbooks. No paywall. Just shortcuts that work, peers who actually
-            answer, and a real-time scholarship feed from students who got in.
+            No textbooks. No paywall. Just shortcuts that work and peers who
+            actually answer.
           </p>
           <div className="mt-8 flex flex-col items-start gap-3 sm:flex-row">
             <Button size="lg" asChild>
@@ -182,7 +177,7 @@ function StatsStrip() {
           { value: data?.students ?? 0, label: "Students on board" },
           { value: data?.posts ?? 0, label: "Questions asked" },
           { value: data?.resources ?? 0, label: "Cheat codes shared" },
-          { value: data?.scholarships ?? 0, label: "Live scholarships" },
+          { value: data?.replies ?? 0, label: "Breakdowns posted" },
         ].map((s) => (
           <div key={s.label} className="text-center sm:text-left">
             <div className="font-display text-4xl font-normal tracking-tight sm:text-5xl">
@@ -301,7 +296,7 @@ function LiveActivity() {
               className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5 shadow-card transition hover:border-border-strong"
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[var(--accent)] text-[var(--accent-foreground)]">
-                {it.kind === "post" ? <MessageSquare className="h-4 w-4" /> : it.kind === "scholarship" ? <Globe className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+                {it.kind === "post" ? <MessageSquare className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
               </div>
               <div className="min-w-0">
                 <p className="font-display text-lg leading-snug">{it.title}</p>
@@ -376,12 +371,11 @@ function CTA() {
 const features = [
   { icon: Zap, title: "Cheat Code Vault", desc: "Short SAT tricks, searchable by topic. Upvote what worked.", image: studyImg, alt: "Student writing notes with SAT prep material" },
   { icon: MessageSquare, title: "Peer Forum", desc: "Stuck on a question? Post a screenshot, get a breakdown.", image: communityImg, alt: "Group of students collaborating on laptops" },
-  { icon: Globe, title: "Scholarship Pipeline", desc: "Filter US, UK, Australia opportunities by deadline & type.", image: scholarshipsImg, alt: "Graduation cap on a world globe with international flags" },
   { icon: TrendingUp, title: "Impact Dashboard", desc: "Live counters showing the community's real footprint.", image: studyImg, alt: "Charts showing community impact" },
 ];
 
 const voices = [
   { name: "Enzo", where: "Kigali · 1400", quote: "Got 1480 using just the Vault. The grammar shortcuts alone moved me 60 points." },
   { name: "Jonas", where: "Kigali · 1520", quote: "The forum is where it clicked. Someone broke down a question I'd stared at for an hour." },
-  { name: "Leila", where: "USA · scholarship", quote: "Found a full ride in Australia through the scholarship feed. Wouldn't have looked otherwise." },
+  { name: "Leila", where: "USA · 1490", quote: "The breakdowns other students wrote made the Reading section finally make sense." },
 ];
