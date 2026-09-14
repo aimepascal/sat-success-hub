@@ -42,7 +42,7 @@ function ImpactPage() {
   const metrics = [
     {
       icon: Users,
-      label: "Active Global Scholars",
+      label: "Active Students",
       value: data?.scholars ?? 0,
       sub: "Registered students worldwide",
       accent: "text-primary",
