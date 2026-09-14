@@ -309,45 +309,6 @@ export type Database = {
         }
         Relationships: []
       }
-      scholarships: {
-        Row: {
-          amount: string | null
-          apply_url: string
-          country: string
-          created_at: string
-          deadline: string
-          description: string
-          id: string
-          institution: string
-          name: string
-          scholarship_type: string
-        }
-        Insert: {
-          amount?: string | null
-          apply_url: string
-          country: string
-          created_at?: string
-          deadline: string
-          description: string
-          id?: string
-          institution: string
-          name: string
-          scholarship_type: string
-        }
-        Update: {
-          amount?: string | null
-          apply_url?: string
-          country?: string
-          created_at?: string
-          deadline?: string
-          description?: string
-          id?: string
-          institution?: string
-          name?: string
-          scholarship_type?: string
-        }
-        Relationships: []
-      }
       user_roles: {
         Row: {
           created_at: string
