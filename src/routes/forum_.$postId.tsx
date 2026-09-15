@@ -235,7 +235,7 @@ function ThreadPage() {
           </div>
           <p className="mt-6 whitespace-pre-wrap text-base leading-[1.75] text-foreground/90">{post.body}</p>
 
-          {(post.image_url || post.file_url) && (
+          {(post.image_url || post.file_url || post.video_url) && (
             <div className="mt-6 space-y-3 border-t border-border pt-6">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Attachments</p>
               {post.image_url && (
@@ -262,6 +262,9 @@ function ThreadPage() {
                     </Button>
                   </figcaption>
                 </figure>
+              )}
+              {post.video_url && (
+                <VideoCard url={post.video_url} name={post.video_name} size={post.video_size} />
               )}
               {post.file_url && (
                 <AttachmentCard url={post.file_url} name={post.file_name} type={post.file_type} size={post.file_size} />
