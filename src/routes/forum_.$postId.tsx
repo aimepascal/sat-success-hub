@@ -329,6 +329,11 @@ function ThreadPage() {
                     </figcaption>
                   </figure>
                 )}
+                {r.video_url && (
+                  <div className="mt-4">
+                    <VideoCard url={r.video_url} name={r.video_name} size={r.video_size} />
+                  </div>
+                )}
                 {r.file_url && (
                   <div className="mt-4">
                     <AttachmentCard url={r.file_url} name={r.file_name} type={r.file_type} size={r.file_size} />
@@ -360,6 +365,8 @@ function ThreadPage() {
               onImageChange={setReplyImageUrl}
               file={replyFile}
               onFileChange={setReplyFile}
+              video={replyVideo}
+              onVideoChange={setReplyVideo}
               busy={uploading}
               onBusyChange={setUploading}
             />
@@ -367,7 +374,9 @@ function ThreadPage() {
               <Button
                 size="lg"
                 onClick={() => submit.mutate()}
-                disabled={(!reply.trim() && !replyImageUrl && !replyFile) || submit.isPending || uploading}
+                disabled={
+                  (!reply.trim() && !replyImageUrl && !replyFile && !replyVideo) || submit.isPending || uploading
+                }
               >
                 Post breakdown
               </Button>
