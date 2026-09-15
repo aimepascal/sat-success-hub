@@ -134,13 +134,14 @@ function ThreadPage() {
     mutationFn: async () => {
       if (!userId) return;
       const body = reply.trim();
-      if (!body && !replyImageUrl && !replyFile) return;
+      if (!body && !replyImageUrl && !replyFile && !replyVideo) return;
       const { error } = await supabase.from("forum_replies").insert({
         post_id: postId,
         user_id: userId,
         body: body.slice(0, 5000),
         image_url: replyImageUrl,
         ...(replyFile ?? {}),
+        ...(replyVideo ?? {}),
       });
       if (error) throw error;
     },
@@ -148,6 +149,7 @@ function ThreadPage() {
       setReply("");
       setReplyImageUrl(null);
       setReplyFile(null);
+      setReplyVideo(null);
       qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
       toast.success("Breakdown posted");
     },
