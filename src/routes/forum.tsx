@@ -5,12 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageSquare, Plus, X, Trash2, Paperclip, Image as ImageIcon, Search } from "lucide-react";
+import { MessageSquare, Plus, X, Trash2, Paperclip, Image as ImageIcon, Search, Video } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { SignInGate } from "@/components/SignInGate";
 import { AttachmentPicker } from "@/components/AttachmentPicker";
 import type { FileAttachment } from "@/lib/forum-attachments";
+import type { VideoAttachment } from "@/lib/forum-video";
 
 export const Route = createFileRoute("/forum")({
   head: () => ({
@@ -235,6 +236,11 @@ function ForumPage() {
                         <ImageIcon className="h-3 w-3" /> Image
                       </span>
                     )}
+                    {p.video_url && (
+                      <span className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
+                        <Video className="h-3 w-3" /> Video
+                      </span>
+                    )}
                   </div>
                   <h2 className="mt-3 font-display text-2xl leading-snug tracking-tight">{p.title}</h2>
                   <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{p.body}</p>
@@ -278,6 +284,7 @@ function NewPostForm({ userId, onDone }: { userId: string; onDone: () => void })
   const [topic, setTopic] = useState("General");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [file, setFile] = useState<FileAttachment | null>(null);
+  const [video, setVideo] = useState<VideoAttachment | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const submit = useMutation({
@@ -290,6 +297,7 @@ function NewPostForm({ userId, onDone }: { userId: string; onDone: () => void })
         topic,
         image_url: imageUrl,
         ...(file ?? {}),
+        ...(video ?? {}),
       });
       if (error) throw error;
     },
@@ -341,6 +349,8 @@ function NewPostForm({ userId, onDone }: { userId: string; onDone: () => void })
         onImageChange={setImageUrl}
         file={file}
         onFileChange={setFile}
+        video={video}
+        onVideoChange={setVideo}
         busy={uploading}
         onBusyChange={setUploading}
       />

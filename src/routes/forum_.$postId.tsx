@@ -10,7 +10,9 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { SignInGate } from "@/components/SignInGate";
 import { AttachmentPicker } from "@/components/AttachmentPicker";
 import { AttachmentCard } from "@/components/AttachmentCard";
+import { VideoCard } from "@/components/VideoCard";
 import { downloadFromUrl, type FileAttachment } from "@/lib/forum-attachments";
+import type { VideoAttachment } from "@/lib/forum-video";
 
 export const Route = createFileRoute("/forum_/$postId")({
   loader: async ({ params }) => {
@@ -100,6 +102,7 @@ function ThreadPage() {
   const [reply, setReply] = useState("");
   const [replyImageUrl, setReplyImageUrl] = useState<string | null>(null);
   const [replyFile, setReplyFile] = useState<FileAttachment | null>(null);
+  const [replyVideo, setReplyVideo] = useState<VideoAttachment | null>(null);
   const [uploading, setUploading] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState<string | null>(null);
 
@@ -131,13 +134,14 @@ function ThreadPage() {
     mutationFn: async () => {
       if (!userId) return;
       const body = reply.trim();
-      if (!body && !replyImageUrl && !replyFile) return;
+      if (!body && !replyImageUrl && !replyFile && !replyVideo) return;
       const { error } = await supabase.from("forum_replies").insert({
         post_id: postId,
         user_id: userId,
         body: body.slice(0, 5000),
         image_url: replyImageUrl,
         ...(replyFile ?? {}),
+        ...(replyVideo ?? {}),
       });
       if (error) throw error;
     },
@@ -145,6 +149,7 @@ function ThreadPage() {
       setReply("");
       setReplyImageUrl(null);
       setReplyFile(null);
+      setReplyVideo(null);
       qc.invalidateQueries({ queryKey: ["forum-replies", postId] });
       toast.success("Breakdown posted");
     },
@@ -230,7 +235,7 @@ function ThreadPage() {
           </div>
           <p className="mt-6 whitespace-pre-wrap text-base leading-[1.75] text-foreground/90">{post.body}</p>
 
-          {(post.image_url || post.file_url) && (
+          {(post.image_url || post.file_url || post.video_url) && (
             <div className="mt-6 space-y-3 border-t border-border pt-6">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Attachments</p>
               {post.image_url && (
@@ -257,6 +262,9 @@ function ThreadPage() {
                     </Button>
                   </figcaption>
                 </figure>
+              )}
+              {post.video_url && (
+                <VideoCard url={post.video_url} name={post.video_name} size={post.video_size} />
               )}
               {post.file_url && (
                 <AttachmentCard url={post.file_url} name={post.file_name} type={post.file_type} size={post.file_size} />
@@ -321,6 +329,11 @@ function ThreadPage() {
                     </figcaption>
                   </figure>
                 )}
+                {r.video_url && (
+                  <div className="mt-4">
+                    <VideoCard url={r.video_url} name={r.video_name} size={r.video_size} />
+                  </div>
+                )}
                 {r.file_url && (
                   <div className="mt-4">
                     <AttachmentCard url={r.file_url} name={r.file_name} type={r.file_type} size={r.file_size} />
@@ -352,6 +365,8 @@ function ThreadPage() {
               onImageChange={setReplyImageUrl}
               file={replyFile}
               onFileChange={setReplyFile}
+              video={replyVideo}
+              onVideoChange={setReplyVideo}
               busy={uploading}
               onBusyChange={setUploading}
             />
@@ -359,7 +374,9 @@ function ThreadPage() {
               <Button
                 size="lg"
                 onClick={() => submit.mutate()}
-                disabled={(!reply.trim() && !replyImageUrl && !replyFile) || submit.isPending || uploading}
+                disabled={
+                  (!reply.trim() && !replyImageUrl && !replyFile && !replyVideo) || submit.isPending || uploading
+                }
               >
                 Post breakdown
               </Button>
