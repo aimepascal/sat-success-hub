@@ -63,6 +63,10 @@ export type Database = {
           title: string
           topic: string
           user_id: string
+          video_name: string | null
+          video_size: number | null
+          video_type: string | null
+          video_url: string | null
         }
         Insert: {
           body: string
@@ -76,6 +80,10 @@ export type Database = {
           title: string
           topic?: string
           user_id: string
+          video_name?: string | null
+          video_size?: number | null
+          video_type?: string | null
+          video_url?: string | null
         }
         Update: {
           body?: string
@@ -89,6 +97,10 @@ export type Database = {
           title?: string
           topic?: string
           user_id?: string
+          video_name?: string | null
+          video_size?: number | null
+          video_type?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -112,6 +124,10 @@ export type Database = {
           image_url: string | null
           post_id: string
           user_id: string
+          video_name: string | null
+          video_size: number | null
+          video_type: string | null
+          video_url: string | null
         }
         Insert: {
           body: string
@@ -124,6 +140,10 @@ export type Database = {
           image_url?: string | null
           post_id: string
           user_id: string
+          video_name?: string | null
+          video_size?: number | null
+          video_type?: string | null
+          video_url?: string | null
         }
         Update: {
           body?: string
@@ -136,6 +156,10 @@ export type Database = {
           image_url?: string | null
           post_id?: string
           user_id?: string
+          video_name?: string | null
+          video_size?: number | null
+          video_type?: string | null
+          video_url?: string | null
         }
         Relationships: [
           {
