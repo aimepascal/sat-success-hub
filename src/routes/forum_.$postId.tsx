@@ -10,7 +10,9 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 import { SignInGate } from "@/components/SignInGate";
 import { AttachmentPicker } from "@/components/AttachmentPicker";
 import { AttachmentCard } from "@/components/AttachmentCard";
+import { VideoCard } from "@/components/VideoCard";
 import { downloadFromUrl, type FileAttachment } from "@/lib/forum-attachments";
+import type { VideoAttachment } from "@/lib/forum-video";
 
 export const Route = createFileRoute("/forum_/$postId")({
   loader: async ({ params }) => {
@@ -100,6 +102,7 @@ function ThreadPage() {
   const [reply, setReply] = useState("");
   const [replyImageUrl, setReplyImageUrl] = useState<string | null>(null);
   const [replyFile, setReplyFile] = useState<FileAttachment | null>(null);
+  const [replyVideo, setReplyVideo] = useState<VideoAttachment | null>(null);
   const [uploading, setUploading] = useState(false);
   const [downloadingImage, setDownloadingImage] = useState<string | null>(null);
 
