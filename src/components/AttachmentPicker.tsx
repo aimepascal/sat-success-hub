@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ImagePlus, Loader2, Paperclip, X, FileText } from "lucide-react";
+import { ImagePlus, Loader2, Paperclip, X, FileText, Video } from "lucide-react";
 import { toast } from "sonner";
 import {
   formatBytes,
@@ -8,6 +8,7 @@ import {
   uploadForumImage,
   type FileAttachment,
 } from "@/lib/forum-attachments";
+import { formatVideoSize, uploadForumVideo, type VideoAttachment } from "@/lib/forum-video";
 
 export function AttachmentPicker({
   userId,
@@ -15,6 +16,8 @@ export function AttachmentPicker({
   onImageChange,
   file,
   onFileChange,
+  video,
+  onVideoChange,
   busy,
   onBusyChange,
 }: {
@@ -23,10 +26,13 @@ export function AttachmentPicker({
   onImageChange: (url: string | null) => void;
   file: FileAttachment | null;
   onFileChange: (file: FileAttachment | null) => void;
+  video?: VideoAttachment | null;
+  onVideoChange?: (video: VideoAttachment | null) => void;
   busy: boolean;
   onBusyChange: (busy: boolean) => void;
 }) {
-  const [mode, setMode] = useState<"image" | "file" | null>(null);
+  const [mode, setMode] = useState<"image" | "file" | "video" | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const handle = async (kind: "image" | "file", picked: File) => {
     onBusyChange(true);
@@ -43,9 +49,27 @@ export function AttachmentPicker({
     }
   };
 
+  const handleVideo = async (picked: File) => {
+    if (!onVideoChange) return;
+    onBusyChange(true);
+    setMode("video");
+    setProgress(0);
+    try {
+      const attachment = await uploadForumVideo(userId, picked, setProgress);
+      onVideoChange(attachment);
+      toast.success("Video attached");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Video upload failed");
+    } finally {
+      onBusyChange(false);
+      setMode(null);
+      setProgress(0);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      {(imageUrl || file) && (
+      {(imageUrl || file || video) && (
         <div className="space-y-2">
           {imageUrl && (
             <div className="relative inline-block">
@@ -81,6 +105,37 @@ export function AttachmentPicker({
               </button>
             </div>
           )}
+          {video && (
+            <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-elevated p-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                <Video className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium">{video.video_name}</p>
+                <p className="text-xs text-muted-foreground">Video · {formatVideoSize(video.video_size)}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => onVideoChange?.(null)}
+                className="text-muted-foreground hover:text-destructive"
+                aria-label="Remove video"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {busy && mode === "video" && (
+        <div className="rounded-xl border border-border bg-surface p-3">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground">
+            <span>Uploading video… keep this page open</span>
+            <span>{progress}%</span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
+          </div>
         </div>
       )}
 
@@ -119,8 +174,28 @@ export function AttachmentPicker({
             />
           </label>
         )}
+        {onVideoChange && !video && (
+          <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border bg-surface px-3.5 py-2 text-sm font-medium text-muted-foreground transition hover:border-border-strong hover:text-foreground">
+            {busy && mode === "video" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />}
+            {busy && mode === "video" ? "Uploading video…" : "Add video lesson (up to 5GB)"}
+            <input
+              type="file"
+              accept="video/*,.mkv,.mov,.m4v,.avi"
+              className="hidden"
+              disabled={busy}
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void handleVideo(f);
+                e.target.value = "";
+              }}
+            />
+          </label>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">Images up to 5MB · Resources up to 20MB</p>
+      <p className="text-xs text-muted-foreground">
+        Images up to 5MB · Resources up to 20MB · Videos up to 5GB (long lessons of 2 hours and more are fine — uploads
+        resume if your connection drops)
+      </p>
     </div>
   );
 }
