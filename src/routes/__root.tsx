@@ -14,6 +14,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
+import { AITutorChat } from "@/components/AITutorChat";
 import { supabase } from "@/integrations/supabase/client";
 import { registerAppServiceWorker } from "@/lib/pwa";
 
@@ -114,6 +115,7 @@ function RootComponent() {
         </main>
         <SiteFooter />
       </div>
+      <AITutorChat />
       <Toaster position="top-center" richColors />
     </QueryClientProvider>
   );
