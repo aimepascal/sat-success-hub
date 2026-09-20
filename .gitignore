@@ -16,6 +16,14 @@ dist-ssr
 .nitro
 *.local
 
+# Local secrets — these values now live in Vercel's Environment Variables
+# settings (Project > Settings > Environment Variables). Never commit this
+# file again: it was previously tracked, which exposed the Supabase
+# project URL/keys once this repo became public.
+.env
+.env.*
+!.env.example
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
