@@ -1,13 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
-import { getRequest } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { streamText, Output, NoObjectGeneratedError } from "ai";
 import { createOpenAI } from "@ai-sdk/openai";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  createLovableAiGatewayRunIdFetch,
-  getLovableAiGatewayRunId,
-} from "@/lib/ai-gateway.server";
 
 const contentTypeSchema = z.union([
   z.literal("resource"),
@@ -75,24 +70,19 @@ export const generateContent = createServerFn({ method: "POST" })
       throw new Error("Forbidden: admin access required");
     }
 
-    const apiKey = process.env["LOVABLE_API_KEY"];
+    // Calls OpenAI directly with your own API key. This used to go through
+    // Lovable's AI Gateway (ai.gateway.lovable.dev), which is billed against
+    // Lovable credits and only reachable with a LOVABLE_API_KEY issued by
+    // Lovable's own infrastructure — that stopped being an option once this
+    // app moved off Lovable hosting. Set OPENAI_API_KEY in Vercel's
+    // Environment Variables (Project > Settings > Environment Variables) to
+    // your own OpenAI API key to use this feature.
+    const apiKey = process.env["OPENAI_API_KEY"];
     if (!apiKey) {
-      throw new Error("AI gateway key is not configured");
+      throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    const request = getRequest();
-    const initialRunId = getLovableAiGatewayRunId(request);
-    const runIdFetch = createLovableAiGatewayRunIdFetch(initialRunId);
-
-    const lovable = createOpenAI({
-      baseURL: "https://ai.gateway.lovable.dev/v1",
-      apiKey,
-      headers: {
-        "Lovable-API-Key": apiKey,
-        "X-Lovable-AIG-SDK": "vercel-ai-sdk",
-      },
-      fetch: runIdFetch.fetch,
-    });
+    const openai = createOpenAI({ apiKey });
 
     const instructions = buildSystemPrompt(data.type);
     const messages = [
@@ -101,7 +91,7 @@ export const generateContent = createServerFn({ method: "POST" })
     ];
 
     const commonOptions = {
-      model: lovable.responses("openai/gpt-6-astra"),
+      model: openai.responses("gpt-4o-mini"),
       messages,
       instructions,
       providerOptions: {
@@ -147,7 +137,7 @@ export const generateContent = createServerFn({ method: "POST" })
     return {
       draft,
       assistantMessage: { role: "assistant" as const, content: JSON.stringify(output) },
-      runId: runIdFetch.getRunId() ?? null,
+      runId: null,
     };
   });
 
