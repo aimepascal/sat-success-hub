@@ -4,24 +4,37 @@
 // Why this exists: vite-plugin-pwa's `generateSW` strategy runs during the
 // Vite client build and writes into `dist/client` — but this project's
 // TanStack Start + Nitro pipeline emits the actual deployable client assets
-// straight into `.output/public`, bypassing `dist/client` entirely. That
-// meant the previous in-plugin config silently precached 0 files and the
-// resulting sw.js never even made it into the deployed output — the
-// "Install app" button and offline support were dead on production.
+// somewhere else entirely, bypassing `dist/client` entirely. That meant the
+// previous in-plugin config silently precached 0 files and the resulting
+// sw.js never even made it into the deployed output — the "Install app"
+// button and offline support were dead on production.
+//
+// Where "somewhere else" actually is depends on which Nitro preset runs:
+// a plain local `vite build` uses the generic node preset and writes static
+// assets to `.output/public`. On Vercel, Nitro auto-detects the platform and
+// switches to its Vercel preset, which skips `.output/public` altogether and
+// writes straight into `.vercel/output/static` (the exact folder Vercel's
+// static file server reads from). We check both, in order, and use whichever
+// one the build actually produced.
 //
 // Running workbox-build's generateSW() here, after `vite build` completes,
-// against the real `.output/public` directory fixes both problems: it
-// precaches the real hashed asset filenames, and writes sw.js to the exact
-// folder Vercel actually serves.
+// against the real output directory fixes both problems: it precaches the
+// real hashed asset filenames, and writes sw.js to the exact folder that
+// actually gets served in production.
 import { generateSW } from "workbox-build";
 import { existsSync } from "node:fs";
 
-const OUT_DIR = ".output/public";
+const CANDIDATE_DIRS = [".vercel/output/static", ".output/public"];
+const OUT_DIR = CANDIDATE_DIRS.find(existsSync);
 
-if (!existsSync(OUT_DIR)) {
-  console.error(`[generate-sw] ${OUT_DIR} does not exist — did the build run first?`);
+if (!OUT_DIR) {
+  console.error(
+    `[generate-sw] none of ${CANDIDATE_DIRS.join(", ")} exist — did the build run first?`
+  );
   process.exit(1);
 }
+
+console.log(`[generate-sw] using output directory: ${OUT_DIR}`);
 
 const { count, size, warnings } = await generateSW({
   swDest: `${OUT_DIR}/sw.js`,
