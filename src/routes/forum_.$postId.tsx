@@ -4,7 +4,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Download, Trash2, Loader2, MessageSquare } from "lucide-react";
+import { ArrowLeft, Download, Trash2, Loader2, MessageSquare, Bot } from "lucide-react";
 import { toast } from "sonner";
 import { useAuthUser } from "@/hooks/use-auth-user";
 import { SignInGate } from "@/components/SignInGate";
@@ -90,6 +90,15 @@ function Avatar({ name, url, size = "md" }: { name: string; url?: string | null;
   return (
     <span className={`${cls} flex shrink-0 items-center justify-center rounded-full bg-primary-soft font-semibold text-primary`}>
       {initials(name)}
+    </span>
+  );
+}
+
+function AiAvatar({ size = "md" }: { size?: "sm" | "md" }) {
+  const cls = size === "sm" ? "h-8 w-8" : "h-11 w-11";
+  return (
+    <span className={`${cls} flex shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground`}>
+      <Bot className={size === "sm" ? "h-3.5 w-3.5" : "h-4.5 w-4.5"} />
     </span>
   );
 }
@@ -282,16 +291,29 @@ function ThreadPage() {
 
         <ul className="mt-5 space-y-4">
           {replies.map((r) => {
-            const rAuthor = r.profiles?.display_name ?? "Student";
+            const isAi = r.is_ai_generated;
+            const rAuthor = isAi ? "AI Tutor" : (r.profiles?.display_name ?? "Student");
             return (
-              <li key={r.id} className="rounded-2xl border border-border bg-card p-5 shadow-card sm:p-6">
+              <li
+                key={r.id}
+                className={`rounded-2xl border p-5 shadow-card sm:p-6 ${isAi ? "border-primary/30 bg-primary-soft/40" : "border-border bg-card"}`}
+              >
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-2.5">
-                    <Avatar name={rAuthor} url={r.profiles?.avatar_url} size="sm" />
+                    {isAi ? <AiAvatar size="sm" /> : <Avatar name={rAuthor} url={r.profiles?.avatar_url} size="sm" />}
                     <div>
-                      <p className="text-sm font-semibold">{rAuthor}</p>
+                      <p className="flex items-center gap-1.5 text-sm font-semibold">
+                        {rAuthor}
+                        {isAi && (
+                          <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary-foreground">
+                            AI
+                          </span>
+                        )}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                        {isAi
+                          ? "First-pass answer — check it against a human reply too"
+                          : new Date(r.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                       </p>
                     </div>
                   </div>
