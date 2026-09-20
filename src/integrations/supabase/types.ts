@@ -122,6 +122,7 @@ export type Database = {
           file_url: string | null
           id: string
           image_url: string | null
+          is_ai_generated: boolean
           post_id: string
           user_id: string
           video_name: string | null
@@ -138,6 +139,7 @@ export type Database = {
           file_url?: string | null
           id?: string
           image_url?: string | null
+          is_ai_generated?: boolean
           post_id: string
           user_id: string
           video_name?: string | null
@@ -154,6 +156,7 @@ export type Database = {
           file_url?: string | null
           id?: string
           image_url?: string | null
+          is_ai_generated?: boolean
           post_id?: string
           user_id?: string
           video_name?: string | null
