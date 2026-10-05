@@ -3,6 +3,7 @@ import { z } from "zod";
 import { streamText } from "ai";
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { asLearningClient } from "@/lib/learning/db";
 
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -29,12 +30,23 @@ Your job:
 export const sendTutorMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => chatInputSchema.parse(data))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
     // Uses your own Gemini API key (GEMINI_API_KEY in Vercel's Environment
     // Variables) — same setup as the admin content generator.
     const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) {
       throw new Error("GEMINI_API_KEY is not configured");
+    }
+
+    // Shares the daily AI limit with the practice screen's "AI help".
+    const { data: allowed, error: quotaError } = await asLearningClient(context.supabase).rpc(
+      "consume_ai_use",
+    );
+    if (quotaError) {
+      throw new Error("AI help is not available right now");
+    }
+    if (!allowed) {
+      throw new Error("You have used today's AI help. It resets tomorrow.");
     }
 
     const google = createGoogleGenerativeAI({ apiKey });
