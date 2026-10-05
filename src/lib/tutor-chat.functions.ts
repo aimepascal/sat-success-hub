@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { streamText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const chatMessageSchema = z.object({
@@ -30,17 +30,17 @@ export const sendTutorMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => chatInputSchema.parse(data))
   .handler(async ({ data }) => {
-    // Uses your own OpenAI API key (OPENAI_API_KEY in Vercel's Environment
+    // Uses your own Gemini API key (GEMINI_API_KEY in Vercel's Environment
     // Variables) — same setup as the admin content generator.
-    const apiKey = process.env["OPENAI_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const openai = createOpenAI({ apiKey });
+    const google = createGoogleGenerativeAI({ apiKey });
 
     const result = streamText({
-      model: openai.responses("gpt-4o-mini"),
+      model: google("gemini-2.0-flash"),
       instructions: SYSTEM_PROMPT,
       messages: [...data.history, { role: "user" as const, content: data.message }],
     });

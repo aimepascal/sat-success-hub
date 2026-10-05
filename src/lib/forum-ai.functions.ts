@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { streamText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const inputSchema = z.object({
@@ -21,7 +21,7 @@ export const generateForumAiReply = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => inputSchema.parse(data))
   .handler(async ({ data, context }) => {
-    const apiKey = process.env["OPENAI_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) {
       // AI replies are a nice-to-have, not a hard requirement — skip quietly
       // rather than failing the student's post if the key isn't set yet.
@@ -57,9 +57,9 @@ export const generateForumAiReply = createServerFn({ method: "POST" })
       throw new Error("Only the post's author can request the AI reply for it");
     }
 
-    const openai = createOpenAI({ apiKey });
+    const google = createGoogleGenerativeAI({ apiKey });
     const result = streamText({
-      model: openai.responses("gpt-4o-mini"),
+      model: google("gemini-2.0-flash"),
       instructions: SYSTEM_PROMPT,
       messages: [
         {

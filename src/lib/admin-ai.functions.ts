@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { streamText, Output, NoObjectGeneratedError } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const contentTypeSchema = z.union([
@@ -70,19 +70,19 @@ export const generateContent = createServerFn({ method: "POST" })
       throw new Error("Forbidden: admin access required");
     }
 
-    // Calls OpenAI directly with your own API key. This used to go through
-    // Lovable's AI Gateway (ai.gateway.lovable.dev), which is billed against
-    // Lovable credits and only reachable with a LOVABLE_API_KEY issued by
-    // Lovable's own infrastructure — that stopped being an option once this
-    // app moved off Lovable hosting. Set OPENAI_API_KEY in Vercel's
+    // Calls Google Gemini directly with your own API key. This used to go
+    // through Lovable's AI Gateway (ai.gateway.lovable.dev), which is billed
+    // against Lovable credits and only reachable with a LOVABLE_API_KEY issued
+    // by Lovable's own infrastructure — that stopped being an option once this
+    // app moved off Lovable hosting. Set GEMINI_API_KEY in Vercel's
     // Environment Variables (Project > Settings > Environment Variables) to
-    // your own OpenAI API key to use this feature.
-    const apiKey = process.env["OPENAI_API_KEY"];
+    // your own Gemini API key to use this feature.
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const openai = createOpenAI({ apiKey });
+    const google = createGoogleGenerativeAI({ apiKey });
 
     const instructions = buildSystemPrompt(data.type);
     const messages = [
@@ -91,14 +91,9 @@ export const generateContent = createServerFn({ method: "POST" })
     ];
 
     const commonOptions = {
-      model: openai.responses("gpt-4o-mini"),
+      model: google("gemini-2.0-flash"),
       messages,
       instructions,
-      providerOptions: {
-        openai: {
-          store: false,
-        },
-      },
     };
 
     let output: unknown;
