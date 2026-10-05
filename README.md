@@ -1,4 +1,4 @@
-# SAT Hub
+# Imboni SAT Success Hub
 
 Simplified SAT prep and a peer community for students: bite-sized "cheat codes",
 a peer forum, and an AI tutor. Free to use.
