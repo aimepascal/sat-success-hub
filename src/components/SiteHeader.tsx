@@ -4,6 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useIsAdmin } from "@/hooks/use-is-admin";
+import { canReviewQuestions, useRoles } from "@/hooks/use-roles";
+import { LANGUAGES, setLanguage, useI18n, type Language } from "@/lib/i18n";
+import { learningDb } from "@/lib/learning/db";
 import logoUrl from "@/assets/logo.png";
 
 export function SiteHeader() {
@@ -23,11 +26,40 @@ export function SiteHeader() {
     navigate({ to: "/" });
   };
 
+  const { t, language } = useI18n();
+  const { data: roles } = useRoles(userId);
+
+  const chooseLanguage = (next: Language) => {
+    setLanguage(next);
+    // Remembered on the account too, when there is one. Ignored if it fails:
+    // the choice is already saved on this device.
+    if (userId) void learningDb.from("profiles").update({ language: next }).eq("id", userId);
+  };
+
+  const languageSwitch = (
+    <div className="flex items-center rounded-md border border-border p-0.5" role="group" aria-label={t("language.label")}>
+      {LANGUAGES.map((option) => (
+        <button
+          key={option.code}
+          type="button"
+          onClick={() => chooseLanguage(option.code)}
+          aria-pressed={language === option.code}
+          title={option.label}
+          className={`rounded px-2 py-1 text-xs font-semibold uppercase ${language === option.code ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+        >
+          {option.code}
+        </button>
+      ))}
+    </div>
+  );
+
   const navLinks = [
+    ...(userId ? [{ to: "/today", label: t("nav.today") }] : []),
     { to: "/dashboard", label: userId ? "Dashboard" : "Explore" },
     { to: "/vault", label: "Vault" },
     { to: "/forum", label: "Forum" },
     { to: "/impact", label: "Impact" },
+    ...(canReviewQuestions(roles) ? [{ to: "/review-desk", label: t("nav.reviewDesk") }] : []),
     ...(isAdmin ? [{ to: "/admin", label: "Admin" }] : []),
   ];
 
@@ -53,6 +85,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          {languageSwitch}
           {userId ? (
             <Button variant="ghost" size="sm" onClick={handleSignOut}>Sign out</Button>
           ) : (
@@ -71,6 +104,7 @@ export function SiteHeader() {
       {open && (
         <div className="border-t border-border bg-background md:hidden">
           <div className="flex flex-col px-4 py-3">
+            <div className="mb-2 self-start">{languageSwitch}</div>
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="py-2 text-sm font-medium">
                 {l.label}
