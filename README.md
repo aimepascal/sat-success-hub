@@ -8,7 +8,7 @@ a peer forum, and an AI tutor. Free to use.
 - [TanStack Start](https://tanstack.com/start) (React 19, file-based routing, server functions) on Vite
 - TypeScript, Tailwind CSS v4, shadcn/ui (Radix) components
 - [Supabase](https://supabase.com) for auth, database, and storage
-- OpenAI (via the Vercel AI SDK) for the AI features
+- Google Gemini (via the Vercel AI SDK) for the AI features
 - Installable as a PWA (service worker generated after each build)
 
 ## Getting started
@@ -29,7 +29,7 @@ Copy `.env.example` to `.env` and fill it in. Never commit a real `.env` file.
 | --- | --- |
 | `SUPABASE_URL`, `SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_PROJECT_ID` | Supabase access from the server |
 | `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_SUPABASE_PROJECT_ID` | Supabase access from the browser (same values) |
-| `OPENAI_API_KEY` | AI Tutor chat, forum AI replies, admin content generator (server-only) |
+| `GEMINI_API_KEY` | AI Tutor chat, forum AI replies, admin content generator (server-only) |
 
 In production these are set in the hosting provider's environment variable
 settings, not in a file.
