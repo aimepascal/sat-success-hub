@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Search, Download, Calculator, BookOpen, PenLine, Sparkles, Lightbulb, ListChecks, FlaskConical, AlertTriangle } from "lucide-react";
+import { Heart, Search, Download, Calculator, BookOpen, PenLine, Sparkles, Lightbulb, ListChecks, FlaskConical, AlertTriangle, Target, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import type { Resource } from "@/lib/db-types";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -48,11 +48,19 @@ const SECTION_STYLE: Record<string, { badge: string; bar: string; icon: typeof C
 };
 const sectionStyle = (s: string) => SECTION_STYLE[s] ?? { badge: "bg-primary-soft text-primary", bar: "from-primary to-primary", icon: Sparkles };
 
+const DOMAINS: Record<string, string[]> = {
+  Math: ["Algebra", "Advanced Math", "Problem-Solving and Data Analysis", "Geometry and Trigonometry"],
+  Reading: ["Information and Ideas", "Craft and Structure"],
+  Writing: ["Expression of Ideas", "Standard English Conventions"],
+};
+
 const BLOCKS: { key: string; label: string; icon: typeof Lightbulb; tone: string }[] = [
+  { key: "WHAT IT TESTS", label: "What it tests", icon: Target, tone: "border-slate-200 bg-slate-50" },
   { key: "THE CODE", label: "The code", icon: Lightbulb, tone: "border-blue-200 bg-blue-50" },
   { key: "HOW TO USE IT", label: "How to use it", icon: ListChecks, tone: "border-emerald-200 bg-emerald-50" },
   { key: "EXAMPLE", label: "Example", icon: FlaskConical, tone: "border-indigo-200 bg-indigo-50" },
   { key: "WATCH OUT", label: "Watch out", icon: AlertTriangle, tone: "border-amber-200 bg-amber-50" },
+  { key: "PRACTICE", label: "Practice on real questions", icon: ExternalLink, tone: "border-violet-200 bg-violet-50" },
 ];
 
 function parseNote(content: string) {
@@ -66,6 +74,14 @@ function parseNote(content: string) {
   return out.map((b) => ({ ...b, body: b.body.trim() })).filter((b) => b.body);
 }
 
+function linkify(text: string) {
+  return text.split(/(https?:\/\/[^\s)]+)/g).map((part, i) =>
+    /^https?:\/\//.test(part)
+      ? <a key={i} href={part} target="_blank" rel="noreferrer" className="font-semibold text-primary underline">College Board question bank</a>
+      : part,
+  );
+}
+
 function NoteBody({ content }: { content: string }) {
   const parts = parseNote(content);
   if (parts.length === 0) return <pre className="mt-5 whitespace-pre-wrap rounded-xl bg-surface-elevated p-4 font-sans text-sm leading-relaxed">{content}</pre>;
@@ -77,7 +93,7 @@ function NoteBody({ content }: { content: string }) {
         return (
           <section key={p.key} className={`rounded-xl border p-4 ${b.tone}`}>
             <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-foreground/80"><Icon className="h-4 w-4" /> {b.label}</h4>
-            <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">{p.body}</p>
+            <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">{linkify(p.body)}</p>
           </section>
         );
       })}
@@ -89,6 +105,7 @@ function VaultPage() {
   const userId = useAuthUser();
   const [q, setQ] = useState("");
   const [section, setSection] = useState("All");
+  const [domain, setDomain] = useState("All");
   const [openId, setOpenId] = useState<string | null>(null);
 
   const { data: resources = [] } = useQuery({
@@ -108,10 +125,11 @@ function VaultPage() {
   const filtered = useMemo(() => {
     return resources.filter((r) => {
       const matchSection = section === "All" || r.section === section;
+      const matchDomain = domain === "All" || r.category === domain;
       const matchQ = !q || (r.title + r.summary + r.content + r.category).toLowerCase().includes(q.toLowerCase());
-      return matchSection && matchQ;
+      return matchSection && matchDomain && matchQ;
     });
-  }, [resources, q, section]);
+  }, [resources, q, section, domain]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
@@ -128,10 +146,18 @@ function VaultPage() {
         </div>
         <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1 shadow-card">
           {SECTIONS.map((s) => (
-            <button key={s} onClick={() => setSection(s)} className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${section === s ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{s}</button>
+            <button key={s} onClick={() => { setSection(s); setDomain("All"); }} className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${section === s ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{s}</button>
           ))}
         </div>
       </div>
+
+      {section !== "All" && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {["All", ...(DOMAINS[section] ?? [])].map((d) => (
+            <button key={d} onClick={() => setDomain(d)} className={`rounded-full border px-3 py-1 text-xs font-semibold transition ${domain === d ? "border-primary bg-primary text-primary-foreground" : "border-border bg-surface text-muted-foreground hover:text-foreground"}`}>{d === "All" ? "All domains" : d}</button>
+          ))}
+        </div>
+      )}
 
       <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {filtered.map((r) => (
