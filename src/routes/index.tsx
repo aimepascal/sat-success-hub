@@ -10,9 +10,9 @@ import communityImg from "@/assets/feature-community.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "SAT Hub — SAT Cheat Codes & Peer Community" },
+      { title: "Imboni SAT Success Hub — SAT Cheat Codes & Peer Community" },
       { name: "description", content: "Ultra-simplified SAT shortcuts and peer-to-peer breakdowns. Built for students who can't afford to waste time." },
-      { property: "og:title", content: "SAT Hub — SAT Cheat Codes & Peer Community" },
+      { property: "og:title", content: "Imboni SAT Success Hub — SAT Cheat Codes & Peer Community" },
       { property: "og:description", content: "Ultra-simplified SAT shortcuts and peer-to-peer breakdowns in one place." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/" },
     ],
@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
             {
               "@type": "Organization",
               "@id": "https://sat-success-hub.lovable.app/#organization",
-              name: "SAT Hub",
+              name: "Imboni SAT Success Hub",
               url: "https://sat-success-hub.lovable.app/",
               description: "Simplified SAT prep and a peer community for students.",
             },
@@ -34,7 +34,7 @@ export const Route = createFileRoute("/")({
               "@type": "WebSite",
               "@id": "https://sat-success-hub.lovable.app/#website",
               url: "https://sat-success-hub.lovable.app/",
-              name: "SAT Hub",
+              name: "Imboni SAT Success Hub",
               publisher: { "@id": "https://sat-success-hub.lovable.app/#organization" },
               inLanguage: "en",
             },
@@ -206,7 +206,7 @@ function FounderNote() {
         <div>
           <Quote className="h-7 w-7 text-[var(--lagoon)]" />
           <p className="mt-3 font-display text-2xl font-normal leading-snug text-foreground sm:text-3xl">
-            I built SAT Hub because{" "}
+            I built Imboni SAT Success Hub because{" "}
             <span className="circle-sketch px-2">prep books</span>{" "}
             and $2,000 tutors weren't an option for me — or for most students I
             grew up with. Everything here is what I wish I'd had: short, free,
@@ -276,7 +276,7 @@ function LiveActivity() {
               Live activity
             </p>
             <h2 className="mt-2 font-display text-4xl font-normal tracking-tight sm:text-5xl">
-              Right <span className="italic">now</span> on SAT Hub
+              Right <span className="italic">now</span> on Imboni SAT Success Hub
             </h2>
           </div>
           <p className="max-w-sm text-sm text-muted-foreground">

@@ -34,9 +34,9 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-base font-semibold tracking-tight" aria-label="SAT Hub home">
+        <Link to="/" className="flex items-center gap-2 font-display text-base font-semibold tracking-tight" aria-label="Imboni SAT Success Hub home">
           <img src={logoUrl} alt="" width={32} height={32} className="h-8 w-8" />
-          <span>SAT Hub</span>
+          <span>Imboni SAT Success Hub</span>
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">

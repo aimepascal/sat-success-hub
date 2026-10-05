@@ -193,8 +193,8 @@ function parseDraft(type: ContentType, raw: Record<string, unknown>): GeneratedD
 function buildSystemPrompt(type: ContentType): string {
   switch (type) {
     case "resource":
-      return "You are an expert SAT tutor drafting a cheat code for the SAT Hub. Given a topic, produce a concise, student-friendly SAT shortcut. The content should be practical, include a clear strategy, and use markdown formatting where helpful.";
+      return "You are an expert SAT tutor drafting a cheat code for the Imboni SAT Success Hub. Given a topic, produce a concise, student-friendly SAT shortcut. The content should be practical, include a clear strategy, and use markdown formatting where helpful.";
     case "forum_post":
-      return "You are a student mentor drafting a forum post for the SAT Hub peer forum. Given a question or topic, produce a clear, helpful post that other students can learn from.";
+      return "You are a student mentor drafting a forum post for the Imboni SAT Success Hub peer forum. Given a question or topic, produce a clear, helpful post that other students can learn from.";
   }
 }

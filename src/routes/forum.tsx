@@ -18,9 +18,9 @@ import type { VideoAttachment } from "@/lib/forum-video";
 export const Route = createFileRoute("/forum")({
   head: () => ({
     meta: [
-      { title: "Peer Forum — SAT Hub" },
+      { title: "Peer Forum — Imboni SAT Success Hub" },
       { name: "description", content: "Ask SAT questions, share screenshots and PDFs, and get clear peer-to-peer breakdowns from students who've solved them." },
-      { property: "og:title", content: "SAT Hub Peer Forum — Get unstuck on any SAT question" },
+      { property: "og:title", content: "Imboni SAT Success Hub Peer Forum — Get unstuck on any SAT question" },
       { property: "og:description", content: "Post a screenshot or a PDF, get a peer-written breakdown. A focused community for students prepping for the SAT." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/forum")({
         children: JSON.stringify({
           "@context": "https://schema.org",
           "@type": "CollectionPage",
-          name: "SAT Hub Peer Forum",
+          name: "Imboni SAT Success Hub Peer Forum",
           url: "https://sat-success-hub.lovable.app/forum",
           description: "Crowdsourced peer-to-peer breakdowns of tough SAT questions across Math, Reading, Writing, and strategy.",
           inLanguage: "en",

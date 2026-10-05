@@ -14,7 +14,7 @@ import { SignInGate } from "@/components/SignInGate";
 export const Route = createFileRoute("/vault")({
   head: () => ({
     meta: [
-      { title: "Cheat Code Vault — SAT Hub" },
+      { title: "Cheat Code Vault — Imboni SAT Success Hub" },
       { name: "description", content: "Searchable library of ultra-simplified SAT shortcuts and tricks, organized by topic and upvoted by the community." },
       { property: "og:title", content: "SAT Cheat Code Vault — Shortcuts that actually work" },
       { property: "og:description", content: "Browse and upvote bite-sized SAT shortcuts, sorted by topic and contributed by students who scored." },
