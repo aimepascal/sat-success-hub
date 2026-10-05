@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Heart, Search, Download } from "lucide-react";
+import { Heart, Search, Download, Calculator, BookOpen, PenLine, Sparkles, Lightbulb, ListChecks, FlaskConical, AlertTriangle } from "lucide-react";
 import { toast } from "sonner";
 import type { Resource } from "@/lib/db-types";
 import { useAuthUser } from "@/hooks/use-auth-user";
@@ -41,6 +41,50 @@ export const Route = createFileRoute("/vault")({
 
 const SECTIONS = ["All", "Math", "Reading", "Writing"];
 
+const SECTION_STYLE: Record<string, { badge: string; bar: string; icon: typeof Calculator }> = {
+  Math: { badge: "bg-blue-100 text-blue-800", bar: "from-blue-500 to-indigo-500", icon: Calculator },
+  Reading: { badge: "bg-emerald-100 text-emerald-800", bar: "from-emerald-500 to-teal-500", icon: BookOpen },
+  Writing: { badge: "bg-amber-100 text-amber-800", bar: "from-amber-400 to-orange-500", icon: PenLine },
+};
+const sectionStyle = (s: string) => SECTION_STYLE[s] ?? { badge: "bg-primary-soft text-primary", bar: "from-primary to-primary", icon: Sparkles };
+
+const BLOCKS: { key: string; label: string; icon: typeof Lightbulb; tone: string }[] = [
+  { key: "THE CODE", label: "The code", icon: Lightbulb, tone: "border-blue-200 bg-blue-50" },
+  { key: "HOW TO USE IT", label: "How to use it", icon: ListChecks, tone: "border-emerald-200 bg-emerald-50" },
+  { key: "EXAMPLE", label: "Example", icon: FlaskConical, tone: "border-indigo-200 bg-indigo-50" },
+  { key: "WATCH OUT", label: "Watch out", icon: AlertTriangle, tone: "border-amber-200 bg-amber-50" },
+];
+
+function parseNote(content: string) {
+  const out: { key: string; body: string }[] = [];
+  let cur: { key: string; body: string } | null = null;
+  for (const line of content.split("\n")) {
+    const hit = BLOCKS.find((b) => line.trim() === b.key);
+    if (hit) { cur = { key: hit.key, body: "" }; out.push(cur); }
+    else if (cur) cur.body += (cur.body ? "\n" : "") + line;
+  }
+  return out.map((b) => ({ ...b, body: b.body.trim() })).filter((b) => b.body);
+}
+
+function NoteBody({ content }: { content: string }) {
+  const parts = parseNote(content);
+  if (parts.length === 0) return <pre className="mt-5 whitespace-pre-wrap rounded-xl bg-surface-elevated p-4 font-sans text-sm leading-relaxed">{content}</pre>;
+  return (
+    <div className="mt-5 space-y-3">
+      {parts.map((p) => {
+        const b = BLOCKS.find((x) => x.key === p.key)!;
+        const Icon = b.icon;
+        return (
+          <section key={p.key} className={`rounded-xl border p-4 ${b.tone}`}>
+            <h4 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wide text-foreground/80"><Icon className="h-4 w-4" /> {b.label}</h4>
+            <p className="mt-2 whitespace-pre-wrap text-[15px] leading-relaxed text-foreground">{p.body}</p>
+          </section>
+        );
+      })}
+    </div>
+  );
+}
+
 function VaultPage() {
   const userId = useAuthUser();
   const [q, setQ] = useState("");
@@ -71,19 +115,20 @@ function VaultPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <div className="max-w-2xl">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">Cheat Code Vault</h1>
-        <p className="mt-2 text-muted-foreground">Searchable shortcuts. Upvote what worked. Comment with your variation.</p>
+      <div className="rounded-3xl bg-gradient-to-br from-[#16235a] via-[#2f4fd8] to-[#3b6cf4] px-6 py-8 text-white shadow-elevated sm:px-10 sm:py-10">
+        <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-semibold"><Sparkles className="h-3.5 w-3.5" /> {resources.length} study notes</p>
+        <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Cheat Code Vault</h1>
+        <p className="mt-2 max-w-xl text-white/85">Short, simple SAT shortcuts for Math, Reading and Writing. Open a note, try the trick, and upvote what works for you.</p>
       </div>
 
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="pl-9" placeholder="Search by topic, keyword, section..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="h-11 rounded-xl pl-9" placeholder="Search by topic, keyword, section..." value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
-        <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
+        <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1 shadow-card">
           {SECTIONS.map((s) => (
-            <button key={s} onClick={() => setSection(s)} className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${section === s ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{s}</button>
+            <button key={s} onClick={() => setSection(s)} className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${section === s ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}>{s}</button>
           ))}
         </div>
       </div>
@@ -123,13 +168,14 @@ function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; us
   });
 
   return (
-    <article className="group flex flex-col rounded-2xl border border-border bg-card p-5 shadow-card transition hover:border-border-strong">
-      <div className="flex items-start justify-between">
-        <span className="inline-flex items-center rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-primary">{r.section}</span>
+    <article onClick={onOpen} className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-card transition hover:-translate-y-0.5 hover:border-border-strong hover:shadow-elevated">
+      <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${sectionStyle(r.section).bar}`} />
+      <div className="flex items-start justify-between pt-1">
+        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ${sectionStyle(r.section).badge}`}>{(() => { const I = sectionStyle(r.section).icon; return <I className="h-3 w-3" />; })()}{r.section}</span>
         <span className="text-xs text-muted-foreground">{r.category}</span>
       </div>
-      <h3 className="mt-3 font-display text-lg font-semibold leading-snug">{r.title}</h3>
-      <p className="mt-2 line-clamp-3 text-sm text-muted-foreground">{r.summary}</p>
+      <h3 className="mt-3 font-display text-lg font-bold leading-snug group-hover:text-primary">{r.title}</h3>
+      <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{r.summary}</p>
       <div className="mt-4 flex items-center justify-between border-t border-border pt-3">
         <div className="flex items-center gap-4 text-xs text-muted-foreground">
           <button
@@ -144,7 +190,7 @@ function ResourceCard({ r, userId, likeCount, liked, onOpen }: { r: Resource; us
           </button>
           <span className="inline-flex items-center gap-1"><Download className="h-3.5 w-3.5" /> {r.download_count}</span>
         </div>
-        <button onClick={onOpen} className="text-xs font-medium text-primary hover:underline">Open →</button>
+        <button onClick={(e) => { e.stopPropagation(); onOpen(); }} className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary hover:bg-primary hover:text-primary-foreground">Open →</button>
       </div>
     </article>
   );
@@ -190,16 +236,16 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/40 p-0 sm:items-center sm:p-6" onClick={onClose}>
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-2xl bg-card p-6 shadow-elevated sm:rounded-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-t-3xl bg-card p-6 shadow-elevated sm:rounded-3xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <span className="inline-flex items-center rounded-full bg-primary-soft px-2 py-0.5 text-xs font-medium text-primary">{resource.section} · {resource.category}</span>
+            <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${sectionStyle(resource.section).badge}`}>{resource.section} · {resource.category}</span>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight">{resource.title}</h2>
           </div>
-          <button onClick={onClose} className="text-sm text-muted-foreground hover:text-foreground">Close</button>
+          <button onClick={onClose} className="rounded-full bg-muted px-3 py-1 text-sm font-medium text-muted-foreground hover:text-foreground">Close</button>
         </div>
-        <p className="mt-4 text-sm font-medium text-muted-foreground">{resource.summary}</p>
-        <pre className="mt-5 whitespace-pre-wrap rounded-xl bg-surface-elevated p-4 font-sans text-sm leading-relaxed">{resource.content}</pre>
+        <p className="mt-4 text-base font-medium leading-relaxed text-foreground/80">{resource.summary}</p>
+        <NoteBody content={resource.content} />
 
         <div className="mt-8">
           <h3 className="text-sm font-semibold">Reflections ({comments.length})</h3>

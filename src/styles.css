@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap");
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -36,47 +37,45 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-ring-offset-background: var(--background);
-  --font-display: "Instrument Serif", "Iowan Old Style", "Apple Garamond", Georgia, serif;
-  --font-sans: "Work Sans", ui-sans-serif, system-ui, sans-serif;
-  --shadow-card: 0 1px 0 0 var(--border), 0 1px 2px 0 color-mix(in oklab, var(--foreground) 4%, transparent);
+  --font-display: "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter", "Work Sans", ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 1px 2px 0 color-mix(in oklab, var(--foreground) 6%, transparent), 0 8px 24px -16px color-mix(in oklab, var(--primary) 30%, transparent);
   --shadow-elevated: 0 8px 24px -12px color-mix(in oklab, var(--primary) 25%, transparent);
 }
 
 :root {
-  --radius: 0.5rem;
-  /* Ocean Deep — navy + teal, editorial paper */
-  --background: oklch(0.985 0.004 220);
-  --foreground: oklch(0.18 0.05 250);
+  --radius: 0.85rem;
+  /* Imboni — bright blue + warm amber, friendly and modern */
+  --background: oklch(0.982 0.008 255);
+  --foreground: oklch(0.22 0.06 265);
   --surface: oklch(1 0 0);
-  --surface-elevated: oklch(0.97 0.008 220);
+  --surface-elevated: oklch(0.965 0.014 255);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.05 250);
+  --card-foreground: oklch(0.22 0.06 265);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.05 250);
-  /* #0c2340 deep navy */
-  --primary: oklch(0.25 0.07 252);
+  --popover-foreground: oklch(0.22 0.06 265);
+  --primary: oklch(0.52 0.20 262);
   --primary-foreground: oklch(0.99 0 0);
-  --primary-soft: oklch(0.94 0.025 220);
-  --secondary: oklch(0.95 0.012 220);
-  --secondary-foreground: oklch(0.22 0.05 250);
-  --muted: oklch(0.95 0.01 220);
-  --muted-foreground: oklch(0.42 0.03 230);
-  /* #2d8a9e teal accent */
-  --accent: oklch(0.92 0.04 210);
-  --accent-foreground: oklch(0.32 0.09 210);
+  --primary-soft: oklch(0.95 0.035 262);
+  --secondary: oklch(0.95 0.02 262);
+  --secondary-foreground: oklch(0.28 0.08 265);
+  --muted: oklch(0.955 0.012 255);
+  --muted-foreground: oklch(0.46 0.04 262);
+  --accent: oklch(0.94 0.08 85);
+  --accent-foreground: oklch(0.40 0.10 65);
   --destructive: oklch(0.58 0.20 25);
   --destructive-foreground: oklch(0.99 0 0);
-  --success: oklch(0.62 0.13 175);
+  --success: oklch(0.62 0.15 155);
   --success-foreground: oklch(0.99 0 0);
-  --border: oklch(0.90 0.012 220);
-  --border-strong: oklch(0.82 0.018 220);
-  --input: oklch(0.90 0.012 220);
-  --ring: oklch(0.55 0.10 210);
+  --border: oklch(0.91 0.015 258);
+  --border-strong: oklch(0.82 0.03 258);
+  --input: oklch(0.91 0.015 258);
+  --ring: oklch(0.55 0.18 262);
   /* Brand spot colors */
-  --ink: #0c2340;
-  --tide: #1a4a6e;
-  --lagoon: #2d8a9e;
-  --foam: #5cbdb9;
+  --ink: #16235a;
+  --tide: #2f4fd8;
+  --lagoon: #3b6cf4;
+  --foam: #f5a524;
 }
 
 @layer base {
@@ -92,8 +91,11 @@
   }
   h1, h2, h3, h4 {
     font-family: var(--font-display);
+    font-weight: 700;
     letter-spacing: -0.02em;
   }
+  button, a { transition: background-color .15s, color .15s, border-color .15s, box-shadow .15s, transform .15s; }
+  button:active { transform: scale(0.98); }
 }
 
 @layer utilities {
@@ -111,7 +113,7 @@
     color: transparent;
   }
   .underline-sketch {
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 8 Q 50 2, 100 6 T 198 5' stroke='%232d8a9e' stroke-width='3' fill='none' stroke-linecap='round'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 12' preserveAspectRatio='none'><path d='M2 8 Q 50 2, 100 6 T 198 5' stroke='%233b6cf4' stroke-width='3' fill='none' stroke-linecap='round'/></svg>");
     background-repeat: no-repeat;
     background-position: 0 92%;
     background-size: 100% 0.45em;
@@ -125,7 +127,7 @@
     content: "";
     position: absolute;
     inset: -8px -14px;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'><path d='M20 40 Q 10 10, 100 8 Q 195 12, 188 42 Q 192 72, 100 72 Q 10 74, 22 40' stroke='%235cbdb9' stroke-width='2.5' fill='none' stroke-linecap='round'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80' preserveAspectRatio='none'><path d='M20 40 Q 10 10, 100 8 Q 195 12, 188 42 Q 192 72, 100 72 Q 10 74, 22 40' stroke='%23f5a524' stroke-width='2.5' fill='none' stroke-linecap='round'/></svg>");
     background-repeat: no-repeat;
     background-size: 100% 100%;
     pointer-events: none;
@@ -137,11 +139,11 @@
     height: 14px;
     margin-left: 6px;
     vertical-align: middle;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14'><path d='M1 8 Q 10 2, 22 7 M16 3 L 24 7 L 17 12' stroke='%230c2340' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 14'><path d='M1 8 Q 10 2, 22 7 M16 3 L 24 7 L 17 12' stroke='%2316235a' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>");
     background-repeat: no-repeat;
   }
   .paper {
-    background-color: oklch(0.985 0.004 220);
+    background-color: oklch(0.982 0.008 255);
     background-image:
       radial-gradient(color-mix(in oklab, var(--ink) 6%, transparent) 1px, transparent 1px);
     background-size: 22px 22px;
