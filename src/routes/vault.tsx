@@ -54,6 +54,18 @@ const DOMAINS: Record<string, string[]> = {
   Writing: ["Expression of Ideas", "Standard English Conventions"],
 };
 
+const DOMAIN_ORDER = [
+  { name: "Algebra", blurb: "Lines, equations and systems: the engine of the Math section.", section: "Math" },
+  { name: "Advanced Math", blurb: "Curves, powers and rewriting expressions.", section: "Math" },
+  { name: "Problem-Solving and Data Analysis", blurb: "Percents, rates, tables, charts and statistics from real situations.", section: "Math" },
+  { name: "Geometry and Trigonometry", blurb: "Shapes, angles, circles and right triangles.", section: "Math" },
+  { name: "Information and Ideas", blurb: "Find what a text says, what it suggests, and what proves it.", section: "Reading" },
+  { name: "Craft and Structure", blurb: "Word meaning, how a text is built, and how two texts relate.", section: "Reading" },
+  { name: "Expression of Ideas", blurb: "Make writing clearer, better ordered and on target.", section: "Writing" },
+  { name: "Standard English Conventions", blurb: "Grammar and punctuation rules the SAT repeats every test.", section: "Writing" },
+];
+const OTHER_DOMAIN = { name: "Strategies and tools", blurb: "Test-day tactics, Desmos and quick tricks that work across every domain.", section: "All" };
+
 const BLOCKS: { key: string; label: string; icon: typeof Lightbulb; tone: string }[] = [
   { key: "WHAT IT TESTS", label: "What it tests", icon: Target, tone: "border-slate-200 bg-slate-50" },
   { key: "THE CODE", label: "The code", icon: Lightbulb, tone: "border-blue-200 bg-blue-50" },
@@ -111,7 +123,7 @@ function VaultPage() {
   const { data: resources = [] } = useQuery({
     queryKey: ["resources"],
     queryFn: async () => {
-      const { data } = await supabase.from("resources").select("*").order("created_at", { ascending: false });
+      const { data } = await supabase.from("resources").select("*").order("created_at", { ascending: true });
       return (data ?? []) as Resource[];
     },
   });
@@ -131,6 +143,17 @@ function VaultPage() {
     });
   }, [resources, q, section, domain]);
 
+  const groups = useMemo(() => {
+    const known = new Set(DOMAIN_ORDER.map((d) => d.name));
+    const base = [...DOMAIN_ORDER, OTHER_DOMAIN].map((d) => ({
+      ...d,
+      items: filtered
+        .filter((r) => (d === OTHER_DOMAIN ? !known.has(r.category) : r.category === d.name))
+        .sort((a, b) => (a.created_at < b.created_at ? -1 : 1)),
+    }));
+    return base.filter((g) => g.items.length > 0);
+  }, [filtered]);
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <div className="rounded-3xl bg-gradient-to-br from-[#16235a] via-[#2f4fd8] to-[#3b6cf4] px-6 py-8 text-white shadow-elevated sm:px-10 sm:py-10">
@@ -142,7 +165,7 @@ function VaultPage() {
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input className="h-11 rounded-xl pl-9" placeholder="Search by topic, keyword, section..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Input className="h-11 rounded-xl pl-9" placeholder="Search all lessons: for example systems, commas, percent, inference..." value={q} onChange={(e) => setQ(e.target.value)} />
         </div>
         <div className="flex gap-1 overflow-x-auto rounded-xl border border-border bg-surface p-1 shadow-card">
           {SECTIONS.map((s) => (
@@ -159,20 +182,37 @@ function VaultPage() {
         </div>
       )}
 
-      <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {filtered.map((r) => (
-          <ResourceCard
-            key={r.id}
-            r={r}
-            userId={userId}
-            likeCount={likes.filter((l) => l.resource_id === r.id).length}
-            liked={!!userId && likes.some((l) => l.resource_id === r.id && l.user_id === userId)}
-            onOpen={() => setOpenId(r.id)}
-          />
+      {q && <p className="mt-6 text-sm text-muted-foreground">{filtered.length} result{filtered.length === 1 ? "" : "s"} for “{q}”</p>}
+
+      <div className="mt-6 space-y-10">
+        {groups.map((g) => (
+          <section key={g.name}>
+            {!q && (
+              <div className="mb-3 flex flex-wrap items-end justify-between gap-2 border-b border-border pb-2">
+                <div>
+                  <h2 className="font-display text-xl font-bold">{g.name}</h2>
+                  <p className="text-sm text-muted-foreground">{g.blurb}</p>
+                </div>
+                <span className="rounded-full bg-primary-soft px-3 py-1 text-xs font-semibold text-primary">{g.items.length} lesson{g.items.length === 1 ? "" : "s"}</span>
+              </div>
+            )}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {g.items.map((r) => (
+                <ResourceCard
+                  key={r.id}
+                  r={r}
+                  userId={userId}
+                  likeCount={likes.filter((l) => l.resource_id === r.id).length}
+                  liked={!!userId && likes.some((l) => l.resource_id === r.id && l.user_id === userId)}
+                  onOpen={() => setOpenId(r.id)}
+                />
+              ))}
+            </div>
+          </section>
         ))}
         {filtered.length === 0 && (
-          <div className="col-span-full rounded-2xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
-            No resources match. Try a different keyword.
+          <div className="rounded-2xl border border-dashed border-border p-12 text-center text-sm text-muted-foreground">
+            No lessons match. Try a different word, or clear the filters.
           </div>
         )}
       </div>
@@ -238,7 +278,7 @@ function ResourceModal({ resourceId, userId, onClose }: { resourceId: string; us
         .from("resource_comments")
         .select("*, profiles!resource_comments_profile_fk(display_name,avatar_url)")
         .eq("resource_id", resourceId)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: true });
       return data ?? [];
     },
   });
