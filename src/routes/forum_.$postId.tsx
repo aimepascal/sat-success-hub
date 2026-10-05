@@ -61,10 +61,10 @@ export const Route = createFileRoute("/forum_/$postId")({
       : null;
     return {
       meta: [
-        { title: `${loaderData?.title ?? "Thread"} — SAT Hub Forum` },
-        { name: "description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
-        { property: "og:title", content: loaderData?.title ?? "SAT Hub Forum Thread" },
-        { property: "og:description", content: loaderData?.excerpt || "A peer discussion thread on the SAT Hub forum." },
+        { title: `${loaderData?.title ?? "Thread"} — Imboni SAT Success Hub Forum` },
+        { name: "description", content: loaderData?.excerpt || "A peer discussion thread on the Imboni SAT Success Hub forum." },
+        { property: "og:title", content: loaderData?.title ?? "Imboni SAT Success Hub Forum Thread" },
+        { property: "og:description", content: loaderData?.excerpt || "A peer discussion thread on the Imboni SAT Success Hub forum." },
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],

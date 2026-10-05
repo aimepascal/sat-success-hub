@@ -6,10 +6,10 @@ import { Users, MessageSquare, TrendingUp, BookOpen } from "lucide-react";
 export const Route = createFileRoute("/impact")({
   head: () => ({
     meta: [
-      { title: "Our Impact — SAT Hub" },
-      { name: "description", content: "Live metrics showing the real-world footprint of the SAT Hub community: active students, peer solutions shared, and average score improvement." },
-      { property: "og:title", content: "SAT Hub — Live Community Impact" },
-      { property: "og:description", content: "Real numbers. Real students. See what the SAT Hub community has built together." },
+      { title: "Our Impact — Imboni SAT Success Hub" },
+      { name: "description", content: "Live metrics showing the real-world footprint of the Imboni SAT Success Hub community: active students, peer solutions shared, and average score improvement." },
+      { property: "og:title", content: "Imboni SAT Success Hub — Live Community Impact" },
+      { property: "og:description", content: "Real numbers. Real students. See what the Imboni SAT Success Hub community has built together." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/impact" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/impact" }],
@@ -94,7 +94,7 @@ function ImpactPage() {
           Built to democratize access.
         </h2>
         <p className="mt-3 max-w-2xl text-muted-foreground">
-          SAT Hub exists for the students who can't pay $2,000 for a prep course. The community is the curriculum. The shortcuts are the secret weapon.
+          Imboni SAT Success Hub exists for the students who can't pay $2,000 for a prep course. The community is the curriculum. The shortcuts are the secret weapon.
         </p>
       </div>
     </div>

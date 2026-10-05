@@ -16,9 +16,9 @@ export const Route = createFileRoute("/auth")({
   validateSearch: authSearchSchema,
   head: () => ({
     meta: [
-      { title: "Sign in — SAT Hub" },
-      { name: "description", content: "Join the SAT Hub community. Free forever for students." },
-      { property: "og:title", content: "Join SAT Hub" },
+      { title: "Sign in — Imboni SAT Success Hub" },
+      { name: "description", content: "Join the Imboni SAT Success Hub community. Free forever for students." },
+      { property: "og:title", content: "Join Imboni SAT Success Hub" },
       { property: "og:description", content: "Sign in or create a free account to unlock SAT cheat codes and peer threads." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/auth" },
     ],
@@ -98,7 +98,7 @@ function AuthPage() {
             <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Sparkles className="h-4 w-4" />
             </span>
-            SAT Hub
+            Imboni SAT Success Hub
           </Link>
         </div>
 

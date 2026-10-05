@@ -14,7 +14,7 @@ import { generateContent, publishGeneratedContent } from "@/lib/admin-ai.functio
 import { useServerFn } from "@tanstack/react-start";
 
 export const Route = createFileRoute("/_authenticated/admin")({
-  head: () => ({ meta: [{ title: "Admin Panel — SAT Hub" }] }),
+  head: () => ({ meta: [{ title: "Admin Panel — Imboni SAT Success Hub" }] }),
   component: AdminPage,
 });
 

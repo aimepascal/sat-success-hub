@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { streamText } from "ai";
-import { createOpenAI } from "@ai-sdk/openai";
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { asLearningClient } from "@/lib/learning/db";
 
 const chatMessageSchema = z.object({
   role: z.enum(["user", "assistant"]),
@@ -16,7 +17,7 @@ const chatInputSchema = z.object({
   history: z.array(chatMessageSchema).max(20).default([]),
 });
 
-const SYSTEM_PROMPT = `You are the SAT Hub AI Tutor, a warm and encouraging SAT prep coach built into the SAT Hub app.
+const SYSTEM_PROMPT = `You are the Imboni SAT Success Hub AI Tutor, a warm and encouraging SAT prep coach built into the Imboni SAT Success Hub app.
 
 Your job:
 - Help students understand SAT Math, Reading, and Writing concepts.
@@ -29,18 +30,29 @@ Your job:
 export const sendTutorMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((data) => chatInputSchema.parse(data))
-  .handler(async ({ data }) => {
-    // Uses your own OpenAI API key (OPENAI_API_KEY in Vercel's Environment
+  .handler(async ({ data, context }) => {
+    // Uses your own Gemini API key (GEMINI_API_KEY in Vercel's Environment
     // Variables) — same setup as the admin content generator.
-    const apiKey = process.env["OPENAI_API_KEY"];
+    const apiKey = process.env["GEMINI_API_KEY"];
     if (!apiKey) {
-      throw new Error("OPENAI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
-    const openai = createOpenAI({ apiKey });
+    // Shares the daily AI limit with the practice screen's "AI help".
+    const { data: allowed, error: quotaError } = await asLearningClient(context.supabase).rpc(
+      "consume_ai_use",
+    );
+    if (quotaError) {
+      throw new Error("AI help is not available right now");
+    }
+    if (!allowed) {
+      throw new Error("You have used today's AI help. It resets tomorrow.");
+    }
+
+    const google = createGoogleGenerativeAI({ apiKey });
 
     const result = streamText({
-      model: openai.responses("gpt-4o-mini"),
+      model: google("gemini-2.0-flash"),
       instructions: SYSTEM_PROMPT,
       messages: [...data.history, { role: "user" as const, content: data.message }],
     });

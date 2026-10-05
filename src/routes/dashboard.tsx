@@ -7,10 +7,10 @@ import { useAuthUser } from "@/hooks/use-auth-user";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Explore SAT Hub — Dashboard" },
+      { title: "Explore Imboni SAT Success Hub — Dashboard" },
       { name: "description", content: "Jump into the Cheat Code Vault, the Peer Forum, or see live community impact. Free to browse, no account required." },
-      { property: "og:title", content: "Explore the SAT Hub Dashboard" },
-      { property: "og:description", content: "One launchpad for every SAT Hub tool — cheat codes and peer threads. Browse freely." },
+      { property: "og:title", content: "Explore the Imboni SAT Success Hub Dashboard" },
+      { property: "og:description", content: "One launchpad for every Imboni SAT Success Hub tool — cheat codes and peer threads. Browse freely." },
       { property: "og:url", content: "https://sat-success-hub.lovable.app/dashboard" },
     ],
     links: [{ rel: "canonical", href: "https://sat-success-hub.lovable.app/dashboard" }],
@@ -59,7 +59,7 @@ function Dashboard() {
         ) : (
           <>
             <p className="inline-flex items-center gap-1.5 text-sm font-medium uppercase tracking-wider text-primary">
-              <Sparkles className="h-3.5 w-3.5" /> Explore SAT Hub
+              <Sparkles className="h-3.5 w-3.5" /> Explore Imboni SAT Success Hub
             </p>
             <h1 className="mt-2 font-display text-3xl font-semibold tracking-tight sm:text-4xl">
               Browse everything. No account needed.
