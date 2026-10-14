@@ -154,3 +154,10 @@
     box-shadow: 2px 4px 0 rgba(12,35,64,0.12);
   }
 }
+
+.print-only { display: none; }
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white !important; }
+}

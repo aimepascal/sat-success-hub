@@ -64,7 +64,8 @@ const DOMAIN_ORDER = [
   { name: "Expression of Ideas", blurb: "Make writing clearer, better ordered and on target.", section: "Writing" },
   { name: "Standard English Conventions", blurb: "Grammar and punctuation rules the SAT repeats every test.", section: "Writing" },
 ];
-const OTHER_DOMAIN = { name: "Strategies and tools", blurb: "Test-day tactics, Desmos and quick tricks that work across every domain.", section: "All" };
+const OTHER_DOMAIN = { name: "Cheat codes and quick strategies", blurb: "Short tricks, Desmos moves and test-day tactics that work across every domain.", section: "All" };
+const isLesson = (content: string) => content.trimStart().startsWith("WHAT IT TESTS");
 
 const BLOCKS: { key: string; label: string; icon: typeof Lightbulb; tone: string }[] = [
   { key: "WHAT IT TESTS", label: "What it tests", icon: Target, tone: "border-slate-200 bg-slate-50" },
@@ -148,8 +149,8 @@ function VaultPage() {
     const base = [...DOMAIN_ORDER, OTHER_DOMAIN].map((d) => ({
       ...d,
       items: filtered
-        .filter((r) => (d === OTHER_DOMAIN ? !known.has(r.category) : r.category === d.name))
-        .sort((a, b) => (a.created_at < b.created_at ? -1 : 1)),
+        .filter((r) => (d === OTHER_DOMAIN ? !(isLesson(r.content) && known.has(r.category)) : isLesson(r.content) && r.category === d.name))
+        .sort((a, b) => (d === OTHER_DOMAIN ? (a.section + a.title).localeCompare(b.section + b.title) : a.created_at < b.created_at ? -1 : 1)),
     }));
     return base.filter((g) => g.items.length > 0);
   }, [filtered]);
