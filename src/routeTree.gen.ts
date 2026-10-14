@@ -15,6 +15,8 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VaultRouteImport } from './routes/vault'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authenticated/audit-logs'
@@ -50,6 +52,16 @@ const ForumRoute = ForumRouteImport.update({
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VaultRoute = VaultRouteImport.update({
@@ -94,6 +106,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -108,6 +122,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -124,6 +140,8 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/audit-logs': typeof AuthenticatedAuditLogsRoute
@@ -140,6 +158,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/privacy'
+    | '/terms'
     | '/vault'
     | '/admin'
     | '/audit-logs'
@@ -154,6 +174,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/privacy'
+    | '/terms'
     | '/vault'
     | '/admin'
     | '/audit-logs'
@@ -169,6 +191,8 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/privacy'
+    | '/terms'
     | '/vault'
     | '/_authenticated/admin'
     | '/_authenticated/audit-logs'
@@ -185,6 +209,8 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForumRoute: typeof ForumRoute
   ImpactRoute: typeof ImpactRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
   VaultRoute: typeof VaultRoute
   ForumPostIdRoute: typeof ForumPostIdRoute
 }
@@ -231,6 +257,20 @@ declare module '@tanstack/react-router' {
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/vault': {
@@ -311,6 +351,8 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForumRoute: ForumRoute,
   ImpactRoute: ImpactRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
   VaultRoute: VaultRoute,
   ForumPostIdRoute: ForumPostIdRoute,
 }
