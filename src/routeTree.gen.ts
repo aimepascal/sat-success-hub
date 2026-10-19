@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ForumRouteImport } from './routes/forum'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as LearnRouteImport } from './routes/learn'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VaultRouteImport } from './routes/vault'
@@ -23,6 +24,7 @@ import { Route as AuthenticatedAuditLogsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPracticeRouteImport } from './routes/_authenticated/practice'
 import { Route as AuthenticatedReviewDeskRouteImport } from './routes/_authenticated/review-desk'
 import { Route as AuthenticatedTodayRouteImport } from './routes/_authenticated/today'
+import { Route as ApiLearnConfigDotjsRouteImport } from './routes/api/learn-config[.]js'
 import { Route as ForumPostIdRouteImport } from './routes/forum_.$postId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -52,6 +54,11 @@ const ForumRoute = ForumRouteImport.update({
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -94,6 +101,11 @@ const AuthenticatedTodayRoute = AuthenticatedTodayRouteImport.update({
   path: '/today',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiLearnConfigDotjsRoute = ApiLearnConfigDotjsRouteImport.update({
+  id: '/api/learn-config.js',
+  path: '/api/learn-config.js',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ForumPostIdRoute = ForumPostIdRouteImport.update({
   id: '/forum_/$postId',
   path: '/forum/$postId',
@@ -106,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/learn': typeof LearnRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
@@ -114,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/practice': typeof AuthenticatedPracticeRoute
   '/review-desk': typeof AuthenticatedReviewDeskRoute
   '/today': typeof AuthenticatedTodayRoute
+  '/api/learn-config.js': typeof ApiLearnConfigDotjsRoute
   '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesByTo {
@@ -122,6 +136,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/learn': typeof LearnRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
@@ -130,6 +145,7 @@ export interface FileRoutesByTo {
   '/practice': typeof AuthenticatedPracticeRoute
   '/review-desk': typeof AuthenticatedReviewDeskRoute
   '/today': typeof AuthenticatedTodayRoute
+  '/api/learn-config.js': typeof ApiLearnConfigDotjsRoute
   '/forum/$postId': typeof ForumPostIdRoute
 }
 export interface FileRoutesById {
@@ -140,6 +156,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/forum': typeof ForumRoute
   '/impact': typeof ImpactRoute
+  '/learn': typeof LearnRoute
   '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/vault': typeof VaultRoute
@@ -148,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/practice': typeof AuthenticatedPracticeRoute
   '/_authenticated/review-desk': typeof AuthenticatedReviewDeskRoute
   '/_authenticated/today': typeof AuthenticatedTodayRoute
+  '/api/learn-config.js': typeof ApiLearnConfigDotjsRoute
   '/forum_/$postId': typeof ForumPostIdRoute
 }
 export interface FileRouteTypes {
@@ -158,6 +176,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/learn'
     | '/privacy'
     | '/terms'
     | '/vault'
@@ -166,6 +185,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/review-desk'
     | '/today'
+    | '/api/learn-config.js'
     | '/forum/$postId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -174,6 +194,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/learn'
     | '/privacy'
     | '/terms'
     | '/vault'
@@ -182,6 +203,7 @@ export interface FileRouteTypes {
     | '/practice'
     | '/review-desk'
     | '/today'
+    | '/api/learn-config.js'
     | '/forum/$postId'
   id:
     | '__root__'
@@ -191,6 +213,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/forum'
     | '/impact'
+    | '/learn'
     | '/privacy'
     | '/terms'
     | '/vault'
@@ -199,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/practice'
     | '/_authenticated/review-desk'
     | '/_authenticated/today'
+    | '/api/learn-config.js'
     | '/forum_/$postId'
   fileRoutesById: FileRoutesById
 }
@@ -209,9 +233,11 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   ForumRoute: typeof ForumRoute
   ImpactRoute: typeof ImpactRoute
+  LearnRoute: typeof LearnRoute
   PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   VaultRoute: typeof VaultRoute
+  ApiLearnConfigDotjsRoute: typeof ApiLearnConfigDotjsRoute
   ForumPostIdRoute: typeof ForumPostIdRoute
 }
 
@@ -257,6 +283,13 @@ declare module '@tanstack/react-router' {
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -315,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTodayRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/learn-config.js': {
+      id: '/api/learn-config.js'
+      path: '/api/learn-config.js'
+      fullPath: '/api/learn-config.js'
+      preLoaderRoute: typeof ApiLearnConfigDotjsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/forum_/$postId': {
       id: '/forum_/$postId'
       path: '/forum/$postId'
@@ -351,9 +391,11 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   ForumRoute: ForumRoute,
   ImpactRoute: ImpactRoute,
+  LearnRoute: LearnRoute,
   PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   VaultRoute: VaultRoute,
+  ApiLearnConfigDotjsRoute: ApiLearnConfigDotjsRoute,
   ForumPostIdRoute: ForumPostIdRoute,
 }
 export const routeTree = rootRouteImport

@@ -99,7 +99,8 @@ function Hero() {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
             <Button size="lg" asChild>
-              <Link to="/vault">Start learning <ArrowRight className="ml-1.5 h-4 w-4" /></Link>
+              {/* /learn is a static page in public/learn, not a router route. */}
+              <a href="/learn">Start learning <ArrowRight className="ml-1.5 h-4 w-4" /></a>
             </Button>
             <Button size="lg" variant="outline" asChild>
               <Link to="/auth" search={{ mode: "signup" }}>Create a free account</Link>
