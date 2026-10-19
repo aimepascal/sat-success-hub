@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,12 @@ import { useIsAdmin } from "@/hooks/use-is-admin";
 import { canReviewQuestions, useRoles } from "@/hooks/use-roles";
 import { LANGUAGES, setLanguage, useI18n, type Language } from "@/lib/i18n";
 import { learningDb } from "@/lib/learning/db";
+import { LEARN_PATH } from "@/lib/learn-redirect";
 import logoUrl from "@/assets/logo.png";
 
 export function SiteHeader() {
   const [userId, setUserId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
-  const navigate = useNavigate();
   const { data: isAdmin } = useIsAdmin(userId);
 
   useEffect(() => {
@@ -23,7 +23,7 @@ export function SiteHeader() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate({ to: "/" });
+    window.location.assign(LEARN_PATH);
   };
 
   const { t, language } = useI18n();
@@ -55,8 +55,6 @@ export function SiteHeader() {
 
   const navLinks = [
     ...(userId ? [{ to: "/today", label: t("nav.today") }] : []),
-    { to: "/dashboard", label: userId ? "Dashboard" : "Explore" },
-    { to: "/vault", label: "Vault" },
     { to: "/forum", label: "Forum" },
     { to: "/impact", label: "Impact" },
     ...(canReviewQuestions(roles) ? [{ to: "/review-desk", label: t("nav.reviewDesk") }] : []),
@@ -66,15 +64,15 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-        <Link to="/" className="flex items-center gap-2 font-display text-base font-semibold tracking-tight" aria-label="Imboni SAT Success Hub home">
+        <a href={LEARN_PATH} className="flex items-center gap-2 font-display text-base font-semibold tracking-tight" aria-label="Imboni SAT Success Hub home">
           <img src={logoUrl} alt="" width={32} height={32} className="h-8 w-8" />
           <span>Imboni SAT Success Hub</span>
-        </Link>
+        </a>
 
         <nav className="hidden items-center gap-1 md:flex">
           {/* /learn is a static page in public/learn, so a plain link, not <Link>. */}
           <a
-            href="/learn"
+            href={LEARN_PATH}
             className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
           >
             Learn
@@ -112,7 +110,7 @@ export function SiteHeader() {
         <div className="border-t border-border bg-background md:hidden">
           <div className="flex flex-col px-4 py-3">
             <div className="mb-2 self-start">{languageSwitch}</div>
-            <a href="/learn" onClick={() => setOpen(false)} className="py-2 text-sm font-medium">
+            <a href={LEARN_PATH} onClick={() => setOpen(false)} className="py-2 text-sm font-medium">
               Learn
             </a>
             {navLinks.map((l) => (
