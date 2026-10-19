@@ -40,9 +40,11 @@ const { count, size, warnings } = await generateSW({
   swDest: `${OUT_DIR}/sw.js`,
   globDirectory: OUT_DIR,
   globPatterns: ["**/*.{js,css,png,jpg,jpeg,svg,webp,woff2}"],
-  globIgnores: ["**/node_modules/**/*", "sw.js", "workbox-*.js"],
+  // /learn is a separate static page (public/learn, ~1.3 MB): it is not
+  // precached for every Hub visitor and never answered with the Hub shell.
+  globIgnores: ["**/node_modules/**/*", "sw.js", "workbox-*.js", "learn/**"],
   navigateFallback: "/",
-  navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//],
+  navigateFallbackDenylist: [/^\/~oauth/, /^\/api\//, /^\/learn(\/|$)/],
   runtimeCaching: [
     {
       urlPattern: ({ request }) => request.mode === "navigate",
@@ -56,6 +58,7 @@ const { count, size, warnings } = await generateSW({
     {
       urlPattern: ({ url, request }) =>
         url.origin === self.location.origin &&
+        !url.pathname.startsWith("/learn/") &&
         ["style", "script", "image", "font"].includes(request.destination),
       handler: "CacheFirst",
       options: {

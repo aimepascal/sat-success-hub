@@ -72,6 +72,13 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
+          {/* /learn is a static page in public/learn, so a plain link, not <Link>. */}
+          <a
+            href="/learn"
+            className="rounded-md px-3 py-1.5 text-sm font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            Learn
+          </a>
           {navLinks.map((l) => (
             <Link
               key={l.to}
@@ -105,6 +112,9 @@ export function SiteHeader() {
         <div className="border-t border-border bg-background md:hidden">
           <div className="flex flex-col px-4 py-3">
             <div className="mb-2 self-start">{languageSwitch}</div>
+            <a href="/learn" onClick={() => setOpen(false)} className="py-2 text-sm font-medium">
+              Learn
+            </a>
             {navLinks.map((l) => (
               <Link key={l.to} to={l.to} onClick={() => setOpen(false)} className="py-2 text-sm font-medium">
                 {l.label}
